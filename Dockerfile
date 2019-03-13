@@ -32,7 +32,6 @@ RUN adduser --disabled-password --gecos '' ubuntu
 RUN adduser ubuntu sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER ubuntu
-WORKDIR /home/ubuntu/
 RUN chmod a+rwx /home/ubuntu/
 RUN mkdir /home/ubuntu/bin
 RUN cd /home/ubuntu/
@@ -50,5 +49,7 @@ RUN git clone $URL && \
 	mv dist/BAMscale /home/ubuntu/bin && \
         cd .. && \
         rm -rf $FOLDER
+
+WORKDIR /data
 
 CMD ["/home/ubuntu/bin/BAMscale"]

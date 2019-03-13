@@ -37,9 +37,9 @@ Clone the libBigWig repository from GitHub: https://github.com/dpryan79/libBigWi
 
 ### Peak quantification with Docker
 
-    docker run bamscale BAMscale cov --bed \<BED_FILE\> --bam \<BAM1\> --bam \<BAM2\> --bam \<BAM3\> ... --bam \<BAMn\>
+    docker run -v `pwd`:/data bamscale BAMscale cov --bed \<BED_FILE\> --bam \<BAM1\> --bam \<BAM2\> --bam \<BAM3\> ... --bam \<BAMn\>
 
 ### Generating scaled coverage tracks with Docker
 
-    docker run bamscale BAMscale scale --bam \<BAM_FILE\> [--bam \<BAM2\> .. --bam \<BAMn\>]
+    docker run -v `pwd`:/data bamscale BAMscale scale --bam \<BAM_FILE\> [--bam \<BAM2\> .. --bam \<BAMn\>]
 
