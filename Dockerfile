@@ -46,7 +46,7 @@ ENV LDFLAGS="-L $CONDA_DIR/lib -Wl,-rpath,$CONDA_DIR/lib"
 RUN git clone $URL && \
         cd $FOLDER && \
 	make && \
-	mv dist/BAMscale /home/ubuntu/bin && \
+	mv bin/BAMscale /home/ubuntu/bin && \
         cd .. && \
         rm -rf $FOLDER
 

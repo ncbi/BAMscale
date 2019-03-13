@@ -54,88 +54,6 @@
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="Debug" type="1">
-      <toolsSet>
-        <compilerSet>default</compilerSet>
-        <dependencyChecking>true</dependencyChecking>
-        <rebuildPropChanged>false</rebuildPropChanged>
-      </toolsSet>
-      <compileType>
-        <cTool>
-          <incDir>
-            <pElem>includes</pElem>
-          </incDir>
-          <commandLine>-g -Wall</commandLine>
-        </cTool>
-        <ccTool>
-          <standard>11</standard>
-        </ccTool>
-        <linkerTool>
-          <output>${CND_DISTDIR}/BAMscale</output>
-          <commandLine>-lBigWig -lhts -lz -lm -lbz2 -llzma -lcurl -ldl -lpthread</commandLine>
-        </linkerTool>
-      </compileType>
-      <packaging>
-        <packType>Tar</packType>
-        <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/BAMscale.tar</output>
-        <packFileList>
-          <packFileListElem type="File"
-                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
-                            from="${OUTPUT_PATH}"
-                            perm="755"
-                            owner="root"
-                            group="bin"/>
-        </packFileList>
-      </packaging>
-      <item path="Dockerfile" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/BAMcoverage.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/BAMstructs.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/BEDstruct.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/CHROMstruct.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/Definitions.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/Inputs.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/Writer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/binning.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/main.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/multithreads.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/scale.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="includes/segmenter.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="src/BAMcoverage.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/BAMstructs.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/BEDstruct.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/CHROMstruct.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/Inputs.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/Writer.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/binning.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/main.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/multithreads.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/scale.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/segmenter.c" ex="false" tool="0" flavor2="0">
-      </item>
-    </conf>
     <conf name="Release" type="1">
       <toolsSet>
         <compilerSet>default</compilerSet>
@@ -145,6 +63,9 @@
       <compileType>
         <cTool>
           <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>includes</pElem>
+          </incDir>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
@@ -156,6 +77,11 @@
         <asmTool>
           <developmentMode>5</developmentMode>
         </asmTool>
+        <linkerTool>
+          <output>bin/BAMscale</output>
+          <linkerDepDynSerchKind>3</linkerDepDynSerchKind>
+          <commandLine>-lBigWig -lhts -lz -lm -lbz2 -llzma -lcurl -ldl -lpthread</commandLine>
+        </linkerTool>
       </compileType>
       <item path="Dockerfile" ex="false" tool="3" flavor2="0">
       </item>

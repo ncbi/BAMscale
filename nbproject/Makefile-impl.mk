@@ -27,11 +27,11 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 PROJECTNAME=BAMscale
 
 # Active Configuration
-DEFAULTCONF=Debug
+DEFAULTCONF=Release
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=Debug Release 
+ALLCONFS=Release 
 
 
 # build
