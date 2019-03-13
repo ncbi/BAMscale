@@ -33,7 +33,7 @@ Clone the libBigWig repository from GitHub: https://github.com/dpryan79/libBigWi
 
 ### Build docker image
 
-    docker build -t bamscale docker build -t bamscale https://raw.githubusercontent.com/pongorlorinc/BAMscale/master/Dockerfile
+    docker build -t bamscale https://raw.githubusercontent.com/pongorlorinc/BAMscale/master/Dockerfile
 
 ### Peak quantification with Docker
 
