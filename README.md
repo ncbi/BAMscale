@@ -8,7 +8,8 @@ BAMscale is a one-step tool for either 1) quantifying and normalizing the covera
 For detailed information, visit the [wiki](https://github.com/pongorlorinc/BAMscale/wiki) page
 
 ## Reference
-\<NA\>
+
+
 
 ## Requirements
 
@@ -22,11 +23,11 @@ Clone the libBigWig repository from GitHub: https://github.com/dpryan79/libBigWi
 
 ### Peak quantification
 
-    BAMscale cov --bed \<BED_FILE\> --bam \<BAM1\> --bam \<BAM2\> --bam \<BAM3\> ... --bam \<BAMn\>
+    BAMscale cov --bed <BED_FILE> --bam <BAM1> --bam <BAM2> --bam <BAM3> ... --bam <BAMn>
 
 ### Generating scaled coverage tracks
 
-    BAMscale scale --bam \<BAM_FILE\> [--bam \<BAM2\> .. --bam \<BAMn\>]
+    BAMscale scale --bam <BAM_FILE> [--bam <BAM2> .. --bam <BAMn>]
 
 
 ## Docker
@@ -37,9 +38,9 @@ Clone the libBigWig repository from GitHub: https://github.com/dpryan79/libBigWi
 
 ### Peak quantification with Docker
 
-    docker run -v `pwd`:/data bamscale BAMscale cov --bed \<BED_FILE\> --bam \<BAM1\> --bam \<BAM2\> --bam \<BAM3\> ... --bam \<BAMn\>
+    docker run -v `pwd`:/data bamscale BAMscale cov --bed <BED_FILE> --bam <BAM1> --bam <BAM2> --bam <BAM3> ... --bam <BAMn>
 
 ### Generating scaled coverage tracks with Docker
 
-    docker run -v `pwd`:/data bamscale BAMscale scale --bam \<BAM_FILE\> [--bam \<BAM2\> .. --bam \<BAMn\>]
+    docker run -v `pwd`:/data bamscale BAMscale scale --bam <BAM_FILE> [--bam <BAM2> .. --bam <BAMn>]
 
