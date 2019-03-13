@@ -1,0 +1,410 @@
+/* 
+ * File:   main.c
+ * Author: pongorls
+ *
+ * Created on November 28, 2018, 11:55 AM
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <ctype.h>
+#include <getopt.h>
+#include <inttypes.h>
+
+#include <bigWig.h>
+
+#include "main.h"
+#include "Definitions.h"
+#include "BAMstructs.h"
+#include "CHROMstruct.h"
+#include "BAMcoverage.h"
+#include "scale.h"
+#include "segmenter.h"
+#include "multithreads.h"
+#include "BEDstruct.h"
+#include "Inputs.h"
+#include "Writer.h"
+#include <htslib/sam.h>
+
+BAMFILES *BAMhead = NULL;
+BAMFILES *BAMcurr = NULL;
+
+CHROMOSOMES *CHROMhead = NULL;
+CHROMOSOMES *CHROMcurr = NULL;
+
+CHRCOV *CCOVhead = NULL;
+CHRCOV *CCOVcurr = NULL;
+
+RATIOS *rhead = NULL;
+RATIOS *rcurr = NULL;
+
+int no_of_samples;
+int bamcoverage = 0; //0: quick (index), 1: count all reads
+
+void FreeAllocatedData(void) {
+    DestroyBAMstruct(BAMhead);
+    DestroyCHROMstruct(CHROMhead, no_of_samples);
+    //DestroyRatioStruct(rhead);
+}
+
+void ComputeCoverageGenome(char *infile, char *infile2, int binSize) {
+    /*no_of_samples++;
+    BAMhead = AddBAMstruct(infile, BAMhead);
+    no_of_samples++;
+    BAMhead = AddBAMstruct(infile2, BAMhead);
+    
+    CHROMhead = ImportChromosomeDataFromBAM(infile, no_of_samples);
+    CHROMhead = ComputeBins(CHROMhead, binSize);
+    CHROMhead = AllocateBins(CHROMhead, no_of_samples);
+    
+    GetChromosomeCoveragesIDX(CHROMhead, BAMhead);
+    GetGenomeCoveragesIDX(CHROMhead, BAMhead);
+    
+    ComputeSamplescales(BAMhead, CHROMhead, 1);
+    printf("Calculating BIN coverages\n");
+    
+    CalculateCoverageOfChromosomeBinsMultithreaded(CHROMhead, BAMhead, 0, binSize, 1, 6);
+    CalculateRatiosAll(rhead, CHROMhead, BAMhead, no_of_samples, 10, 1000, binSize, "/Users/pongorls/NetBeansProjects/hg38.chrom.sizes.sorted");
+
+    FreeAllocatedData();*/
+    return;
+}
+
+void ComputeCoverageChIPpeak(CMDINPUT *cmd) {
+    PEAK *head = NULL;
+    BAMFILES *curr = NULL;
+    char *ofile = NULL;
+    int ofile_len = 0;
+
+    CHROMhead = ImportChromosomeDataFromBAM(cmd->bamfiles->name, cmd->no_of_samples, cmd->threads);
+
+    if (cmd->libtype == -1) {
+        fprintf(stderr, "Detecting library type\n");
+        cmd->libtype = DetectLibraryType(cmd->bamfiles);
+
+        if (cmd->libtype == 0) {
+            fprintf(stderr, "\tLibrary seems single-end\n");
+
+            if (cmd->fragment_count_mode == 1 && cmd->fragment_size == 0) {
+                fprintf(stderr, "ERROR: fragment mode counting is enable, library is single-end, but fragment size is set to 0.");
+                fprintf(stderr, "WARNING: Please re-run program without enabling fragment-counting mode, or set fragment size");
+                PrintMultiCovMessage(cmd->argv[0]);
+                return;
+            }
+        }
+        else
+            fprintf(stderr, "\tLibrary seems paired-end\n");
+    }
+
+    if (cmd->blacklist_file)
+        BlacklistChromosomeFiles(CHROMhead, cmd->blacklist_file);
+
+    PrintBlacklistedChromosomes(CHROMhead, cmd->no_of_samples);
+
+    if (cmd->genome_coverage == 1) {
+        fprintf(stderr, "\nComputing coverage by parsing entire BAM file (this can take long, using the idx with option \'--seqcov 0\' is quicker)\n");
+        fprintf(stderr, "\tthis can take long, using the idx with option \'--seqcov 0\' is quicker\n");
+
+        MultiGenomeReadCoverage(cmd, CHROMhead);
+    }
+    else {
+        fprintf(stderr, "\nComputing coverage from the idx of BAM files\n");
+        GetChromosomeCoveragesIDX(CHROMhead, cmd->bamfiles);
+        GetGenomeCoveragesIDX(CHROMhead, cmd->bamfiles);
+    }
+
+    if (cmd->blacklist_bed) {
+        fprintf(stderr, "Subtracting reads from blaklist BED file ( %s )\n", cmd->blacklist_bed);
+        SubtractBlacklistedBEDS(cmd->blacklist_bed, CHROMhead, cmd->bamfiles, cmd->libtype);
+    }
+
+    ComputeSamplescales(cmd->bamfiles, CHROMhead, 1);
+    head = ReadBED(cmd->bedfile, cmd->threads);
+    AllocateReadCovs(head, cmd->no_of_samples);
+
+    curr = cmd->bamfiles;
+
+    while (curr != NULL) {
+        fprintf(stderr, "\nSample: %s\n", curr->shortname);
+        fprintf(stderr, "\tTotal no. of reads: %d\n", curr->read_coverage);
+        fprintf(stderr, "\tLibrary size scale: %.2f\n", curr->scale);
+        curr = curr->next;
+    }
+
+    fprintf(stderr, "\nProcessing BAM files\n");
+    MultiCoverage(cmd->bamfiles, head, cmd);
+
+    //AllocateCovs(head);
+
+    if (cmd->outdir)
+        ofile_len = strlen(cmd->outdir);
+
+    if (cmd->outprefix)
+        ofile_len += strlen(cmd->outprefix);
+
+    ofile_len += strlen("raw_coverages.tsv") + 50;
+    ofile = (char *) calloc(ofile_len, sizeof (char));
+
+    if (cmd->outdir) {
+        strcat(ofile, cmd->outdir);
+        strcat(ofile, "/");
+    }
+
+    if (cmd->outprefix) {
+        strcat(ofile, cmd->outprefix);
+        strcat(ofile, ".");
+    }
+
+    strcat(ofile, "raw_coverages.tsv");
+
+    //GetBEDCoveragesBAM(BAMhead, head, 0);
+    WriteMultiCovsRaw(cmd->bamfiles, head, cmd->no_of_samples, ofile);
+
+    if (ofile)
+        free(ofile);
+
+    ofile_len += strlen("TPM_normalized_coverages.tsv" + 1);
+    ofile = (char *) calloc(ofile_len + 1, sizeof (char));
+
+    if (cmd->outdir) {
+        strcat(ofile, cmd->outdir);
+        strcat(ofile, "/");
+    }
+
+    if (cmd->outprefix) {
+        strcat(ofile, cmd->outprefix);
+        strcat(ofile, ".");
+    }
+
+    strcat(ofile, "TPM_normalized_coverages.tsv");
+
+    CalculateTPM(cmd->bamfiles, head);
+    WriteMultiCovsNormalized(cmd->bamfiles, head, cmd->no_of_samples, ofile);
+
+    if (ofile)
+        free(ofile);
+
+    ofile_len += strlen("FPKM_normalized_coverages.tsv" + 1);
+    ofile = (char *) calloc(ofile_len + 1, sizeof (char));
+
+    if (cmd->outdir) {
+        strcat(ofile, cmd->outdir);
+        strcat(ofile, "/");
+    }
+
+    if (cmd->outprefix) {
+        strcat(ofile, cmd->outprefix);
+        strcat(ofile, ".");
+    }
+
+    strcat(ofile, "FPKM_normalized_coverages.tsv");
+
+    CalculateFPKM(cmd->bamfiles, head);
+    WriteMultiCovsNormalized(cmd->bamfiles, head, cmd->no_of_samples, ofile);
+
+    if (ofile)
+        free(ofile);
+
+    ofile_len += strlen("Library_normalized_coverages.tsv" + 1);
+    ofile = (char *) calloc(ofile_len + 1, sizeof (char));
+
+    if (cmd->outdir) {
+        strcat(ofile, cmd->outdir);
+        strcat(ofile, "/");
+    }
+
+    if (cmd->outprefix) {
+        strcat(ofile, cmd->outprefix);
+        strcat(ofile, ".");
+    }
+
+    strcat(ofile, "Library_normalized_coverages.tsv");
+
+    CalculateLibScaled(cmd->bamfiles, head);
+    WriteMultiCovsNormalized(cmd->bamfiles, head, cmd->no_of_samples, ofile);
+
+    if (ofile)
+        free(ofile);
+
+    DeleteBEDs(head);
+}
+
+void NormalizeBAMS(CMDINPUT *cmd) {
+    BAMFILES *curr = NULL;
+
+    cmd->fragment_count_mode = 0;
+    fprintf(stderr, "Allocating BINS of size %d for chromosomes\n", cmd->binSize);
+    CHROMhead = ImportChromosomeDataFromBAM(cmd->bamfiles->name, cmd->no_of_samples, cmd->threads);
+
+    if (cmd->blacklist_file)
+        BlacklistChromosomeFiles(CHROMhead, cmd->blacklist_file);
+
+    CHROMhead = ComputeBins(CHROMhead, cmd->binSize);
+    CHROMhead = AllocateBins(CHROMhead, cmd->no_of_samples);
+    cmd->chr = CHROMhead;
+
+    if (cmd->libtype == -1) {
+        fprintf(stderr, "Detecting library type\n");
+        cmd->libtype = DetectLibraryType(cmd->bamfiles);
+
+        if (cmd->libtype == 0) {
+            fprintf(stderr, "\tLibrary seems single-end\n");
+
+            if (cmd->fragment_count_mode == 1 && cmd->fragment_size == 0) {
+                fprintf(stderr, "ERROR: fragment mode counting is enable, library is single-end, but fragment size is set to 0.");
+                fprintf(stderr, "WARNING: Please re-run program without enabling fragment-counting mode, or set fragment size");
+                PrintMultiCovMessage(cmd->argv[0]);
+                return;
+            }
+        } else
+            fprintf(stderr, "\tLibrary seems paired-end\n");
+    }
+
+    fprintf(stderr, "\nComputing coverage from the idx of BAM files\n");
+    GetChromosomeCoveragesIDX(CHROMhead, cmd->bamfiles);
+    MultiGenomeCoverage(cmd, CHROMhead);
+    
+    if(cmd->strandsplit == 1) {
+        cmd->bamfiles->base_coverage = cmd->bamfiles->base_coverage + cmd->bamfiles->next->base_coverage;
+        cmd->bamfiles->next->base_coverage = cmd->bamfiles->base_coverage;
+    }
+    
+    ScaleGenomeCoverage(cmd->bamfiles, CHROMhead);
+
+    if (cmd->genome_coverage == 0) {
+        GetGenomeCoveragesIDX(CHROMhead, cmd->bamfiles);
+        ComputeSamplescales(cmd->bamfiles, CHROMhead, 1);
+    }
+
+    curr = cmd->bamfiles;
+
+    while (curr != NULL) {
+        fprintf(stderr, "\nSample: %s\n", curr->shortname);
+        fprintf(stderr, "\tTotal no. of reads: %d\n", curr->read_coverage);
+        fprintf(stderr, "\tLibrary size scale: %.2f\n", curr->scale);
+        fprintf(stderr, "\tTotal number of filtered reads: %d\n", curr->filtered_reads);
+        fprintf(stderr, "\tBases sequenced: %f\n", curr->base_coverage);
+        fprintf(stderr, "\tGenome size: %.f\n", CalculateGenomeSize(CHROMhead));
+        fprintf(stderr, "\tGenome scale: %f\n", curr->genome_scale);
+        
+        if(strcmp(cmd->scale, INPUTS_SMALLEST) == 0)
+            curr->genome_scale = curr->scale;
+        
+        curr = curr->next;
+    }
+
+    if (strcmp(cmd->scale, "no") != 0) {
+        fprintf(stderr, "\nScaling sample(s)\n");
+        MultiGenomeScaler(cmd, CHROMhead);
+    }
+
+    if (cmd->smoothBin > 0) {
+        if (cmd->tracksmooth == 0 || cmd->tracksmooth == 1) {
+            fprintf(stderr, "\nSmoothening signal\n");
+            MultiGenomeSmoother(cmd, CHROMhead);
+        }
+    }
+    
+    fprintf(stderr, "Printing output BigWig files\n");
+
+    curr = cmd->bamfiles;
+    if(cmd->strandsplit == 1)
+        cmd->strand = 1;
+    
+    while (curr != NULL) {
+        PrintScaledBigWig(cmd, curr, NULL);
+        curr = curr->next;
+        
+        if(cmd->strandsplit == 1)
+            cmd->strand = -1;
+    }
+
+    if (strcmp(cmd->operation, "scaled") != 0 && strcmp(cmd->operation, "unscaled") != 0) {
+        fprintf(stderr, "Transforming coverage tracks: %s\n", cmd->operation);
+        MultiGenomeTransform(cmd, CHROMhead);
+
+        if (cmd->smoothBin > 0) {
+            if (cmd->tracksmooth == 0 || cmd->tracksmooth == 2) {
+                fprintf(stderr, "\nSmoothening transformed signal\n");
+                MultiGenomeSmoother(cmd, CHROMhead);
+            }
+        }
+        
+        curr = cmd->bamfiles->next;
+
+        while (curr != NULL) {
+            PrintScaledBigWig(cmd, curr, cmd->bamfiles->shortname);
+            curr = curr->next;
+        }
+    }
+    //Quantiles(CHROMhead, 1, cmd);
+}
+
+void PrintUsage(char *pname) {
+    char *ptr = strrchr(pname, '/');
+    ptr = ptr ? ptr + 1 : (char *) pname;
+
+    fprintf(stderr, "\nBAMcompare: at tool to quantify peaks, and scale sequencing data\n");
+    fprintf(stderr, "Version: %s\n", "v1.0");
+
+    fprintf(stderr, "\nUsage: %s <command>\n", ptr);
+    fprintf(stderr, "\n\tCommands\tDescription\n");
+    fprintf(stderr, "\t========\t===========\n");
+
+    fprintf(stderr, "\t   cov\t\tCalculate coverage of BED coordinates in BAM file(s). Outputs are raw read counts, FPKM and TPM normalized values.\n");
+    fprintf(stderr, "\t   scale\tConvert BAM files to BigWig,; scale one or multiple files to genome size or to each other.\n");
+}
+
+/*
+ * 
+ */
+int main(int argc, char **argv) {
+    CMDINPUT *cmd = NULL;
+    int found = 0;
+
+    if (argc > 1) {
+        if (strcmp(argv[1], INPUTS_COV) == 0) {
+            found++;
+            cmd = MultiCovParser(argc, argv);
+
+            if (cmd != NULL) {
+                no_of_samples = cmd->no_of_samples;
+                ComputeCoverageChIPpeak(cmd);
+            }
+        }
+
+        if (strcmp(argv[1], INPUTS_SCALE) == 0) {
+            found++;
+            cmd = ScaleParser(argc, argv);
+
+            if (cmd != NULL) {
+                no_of_samples = cmd->no_of_samples;
+                NormalizeBAMS(cmd);
+            }
+        }
+
+        if (found == 0)
+            PrintUsage(argv[0]);
+    }
+    else {
+        PrintUsage(argv[0]);
+    }
+
+    //if (found > 0)
+
+    //else
+    //    fprintf(stderr, "\nUsage: \"%s cov\" to get more options\n", argv[0]);
+
+    if (cmd){
+        DestroyCMDinput(cmd);
+        FreeAllocatedData();
+        free(cmd);
+    }
+    //no_of_samples++;
+    return (EXIT_SUCCESS);
+}
+

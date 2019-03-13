@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="100">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>includes/BAMcoverage.h</itemPath>
+      <itemPath>includes/BAMstructs.h</itemPath>
+      <itemPath>includes/BEDstruct.h</itemPath>
+      <itemPath>includes/CHROMstruct.h</itemPath>
+      <itemPath>includes/Definitions.h</itemPath>
+      <itemPath>includes/Inputs.h</itemPath>
+      <itemPath>includes/Writer.h</itemPath>
+      <itemPath>includes/binning.h</itemPath>
+      <itemPath>includes/main.h</itemPath>
+      <itemPath>includes/multithreads.h</itemPath>
+      <itemPath>includes/scale.h</itemPath>
+      <itemPath>includes/segmenter.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>src/BAMcoverage.c</itemPath>
+      <itemPath>src/BAMstructs.c</itemPath>
+      <itemPath>src/BEDstruct.c</itemPath>
+      <itemPath>src/CHROMstruct.c</itemPath>
+      <itemPath>src/Inputs.c</itemPath>
+      <itemPath>src/Writer.c</itemPath>
+      <itemPath>src/binning.c</itemPath>
+      <itemPath>src/main.c</itemPath>
+      <itemPath>src/multithreads.c</itemPath>
+      <itemPath>src/scale.c</itemPath>
+      <itemPath>src/segmenter.c</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <itemPath>Dockerfile</itemPath>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>src</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <incDir>
+            <pElem>includes</pElem>
+          </incDir>
+          <commandLine>-g -Wall</commandLine>
+        </cTool>
+        <ccTool>
+          <standard>11</standard>
+        </ccTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/BAMscale</output>
+          <commandLine>-lBigWig -lhts -lz -lm -lbz2 -llzma -lcurl -ldl -lpthread</commandLine>
+        </linkerTool>
+      </compileType>
+      <packaging>
+        <packType>Tar</packType>
+        <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/BAMscale.tar</output>
+        <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+        </packFileList>
+      </packaging>
+      <item path="Dockerfile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/BAMcoverage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/BAMstructs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/BEDstruct.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/CHROMstruct.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/Definitions.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/Inputs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/Writer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/binning.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/main.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/multithreads.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/scale.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/segmenter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/BAMcoverage.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/BAMstructs.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/BEDstruct.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/CHROMstruct.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/Inputs.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/Writer.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/binning.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/multithreads.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/scale.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/segmenter.c" ex="false" tool="0" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <standard>11</standard>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="Dockerfile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/BAMcoverage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/BAMstructs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/BEDstruct.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/CHROMstruct.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/Definitions.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/Inputs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/Writer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/binning.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/main.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/multithreads.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/scale.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/segmenter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/BAMcoverage.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/BAMstructs.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/BEDstruct.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/CHROMstruct.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/Inputs.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/Writer.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/binning.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/multithreads.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/scale.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/segmenter.c" ex="false" tool="0" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
