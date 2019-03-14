@@ -34,7 +34,6 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER ubuntu
 RUN chmod a+rwx /home/ubuntu/
 RUN mkdir /home/ubuntu/bin
-RUN cd /home/ubuntu/
 
 ENV URL=https://github.com/pongorlorinc/BAMscale
 ENV FOLDER=BAMscale
@@ -43,10 +42,11 @@ ENV CONDA_DIR="/opt/conda/"
 ENV CPPFLAGS="-I $CONDA_DIR/include"
 ENV LDFLAGS="-L $CONDA_DIR/lib -Wl,-rpath,$CONDA_DIR/lib"
 
-RUN git clone $URL && \
+RUN cd /home/ubuntu/ && \
+        git clone $URL && \
         cd $FOLDER && \
 	make && \
-	mv bin/BAMscale /home/ubuntu/bin && \
+	mv bin/BAMscale /home/ubuntu/bin/ && \
         cd .. && \
         rm -rf $FOLDER
 
