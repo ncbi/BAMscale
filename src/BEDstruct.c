@@ -44,9 +44,6 @@ char *BEDtoString(char *chr, int start, int end) {
     return dest;
 }
 
-/*
- * 
- */
 int Read_filter_MultiCov(bam1_t *read, int paired_end) {
     if (paired_end == 1) {
         if (read->core.tid != read->core.mtid)
@@ -83,10 +80,6 @@ void DeleteBEDs(PEAK *head) {
                 free(curr->read_cov);
 
             if (curr->cov) {
-//                for (int i = 0; i < curr->noSamples; i++) {
-//                    if (curr->cov[i])
-//                        free(curr->cov[i]);
-//                }
                 free(curr->cov);
             }
 
@@ -224,8 +217,6 @@ PEAK *AddBEDentry(PEAK *curr, char *BEDentry, int threadId) {
         curr->length = curr->end - curr->start;
     }
 
-    //printf("%s\t%s\t%s\t%s\n", curr->coord, curr->chr, curr->start_str, curr->end_str);
-
     return curr;
 }
 
@@ -254,13 +245,6 @@ PEAK *ReadBED(char *BEDfilename, int nthreads) {
     }
 
     fclose(handler);
-
-    /*curr = head;
-    while(curr != NULL ) {
-        //printf("%s\t%s\t%s\t%s\n", curr->coord, curr->chr, curr->start_str, curr->end_str);
-        curr = curr->next;
-    }*/
-
     return head;
 }
 
@@ -278,7 +262,6 @@ void GetBEDCoveragesBAM(BAMFILES *bhead, PEAK *beds, CMDINPUT *cmd) {
 
         while (bedhead != NULL) {
             if (bedhead->coord) {
-                //printf("Getting: %s\n", bedhead->coord);
                 hts_itr_t *iter = bam_itr_querys(idx, hdr, bedhead->coord);
 
                 while (sam_itr_next(fp_in, iter, aln) > 0) {
@@ -377,8 +360,6 @@ void *GetBEDFragmentCoveragesBAMmultithread(void * voidA) {
                                     curr->read_cov[ptr->sample_id]++;
                             }
                         }
-
-                        //printf("[ %d ] Getting: %s -> %d (start: %d)\n", ptr->pid, curr->coord, curr->read_cov[ptr->pid], aln->core.qual);
                     }
                 }
                 hts_itr_destroy(iter);
@@ -386,7 +367,6 @@ void *GetBEDFragmentCoveragesBAMmultithread(void * voidA) {
 
             if (ext_coord != NULL)
                 free(ext_coord);
-            //printf("[ %d ] Getting: %s -> %d\n", ptr->pid, curr->coord, curr->read_cov[ptr->pid]);
         }
 
         curr = curr->next;
@@ -425,7 +405,6 @@ void *GetBEDCoveragesBAMmultithread(void * voidA) {
             }
 
             if (checkStrandInfo == 0) {
-                //printf("[ %d ] Getting: %s\n", ptr->pid, curr->coord);
                 hts_itr_t *iter = bam_itr_querys(idx, hdr, curr->coord);
 
                 while (sam_itr_next(fp_in, iter, aln) > 0) {
@@ -446,13 +425,10 @@ void *GetBEDCoveragesBAMmultithread(void * voidA) {
                             }
                         } else
                             curr->read_cov[ptr->sample_id]++;
-
-                        //printf("[ %d ] Getting: %s -> %d (start: %d)\n", ptr->pid, curr->coord, curr->read_cov[ptr->pid], aln->core.qual);
                     }
                 }
                 hts_itr_destroy(iter);
             }
-            //printf("[ %d ] Getting: %s -> %d\n", ptr->pid, curr->coord, curr->read_cov[ptr->pid]);
         }
 
         curr = curr->next;
@@ -532,6 +508,8 @@ void CalculateFPKM(BAMFILES *bhead, PEAK *head) {
         curr = head;
 
         while (curr != NULL) {
+            curr->normalized[bcurr->id] = 0;
+            
             if (curr->read_cov[bcurr->id] > 0) {
                 kilo_length = (float) curr->length / 1000;
                 curr->normalized[bcurr->id] = (float) curr->read_cov[bcurr->id] / (pm * kilo_length);
@@ -552,6 +530,8 @@ void CalculateLibScaled(BAMFILES *bhead, PEAK *head) {
         curr = head;
 
         while (curr != NULL) {
+            curr->normalized[bcurr->id] = 0;
+            
             if (curr->read_cov[bcurr->id] > 0) {
                 curr->normalized[bcurr->id] = (float) curr->read_cov[bcurr->id] * bcurr->scale;
             }
@@ -575,6 +555,8 @@ void CalculateTPM(BAMFILES *bhead, PEAK *head) {
         sum_rpk = 0.0;
 
         while (curr != NULL) {
+            curr->normalized[bcurr->id] = 0;
+            
             if (curr->read_cov[bcurr->id] > 0) {
                 kilo_length = (float) curr->length / 1000;
                 curr->normalized[bcurr->id] = (float) curr->read_cov[bcurr->id] / kilo_length;
@@ -586,10 +568,11 @@ void CalculateTPM(BAMFILES *bhead, PEAK *head) {
         }
 
         curr = head;
-        //printf("ASD: Sum %f\n", sum_rpk);
         sum_rpk = sum_rpk / 1000000;
+        
         while (curr != NULL) {
-            curr->normalized[bcurr->id] = curr->normalized[bcurr->id] / sum_rpk;
+            if (curr->read_cov[bcurr->id] > 0)
+                curr->normalized[bcurr->id] = curr->normalized[bcurr->id] / sum_rpk;
 
             curr = curr->next;
         }

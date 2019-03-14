@@ -240,7 +240,6 @@ void MultiGenomeReadCoverage(CMDINPUT *cmd, CHROMOSOMES *chr) {
     BAMFILES *bamcurr = cmd->bamfiles;
     pthread_t thread_id[cmd->threads];
     int i = 0;
-    //cmd->chr = head;
 
     fprintf(stderr, "\nImporting sequencing coverages\n");
     THREADS *threadStruct = (THREADS *) malloc(cmd->threads * sizeof (THREADS));
@@ -541,7 +540,6 @@ int *CalculateCoverage(samFile *fp_in, hts_itr_t *iter, bam1_t *aln, int chrsize
                     }
                     
                     if(endpos > pos) {
-                        //printf("%d\t%d\t%d\n", pos, endpos, chrsize);
                         for(j = pos; j < endpos; j++) {
                             if(j < fragend && j < chrsize)
                                 chr_cov[j]++;
@@ -620,7 +618,6 @@ void MultiGenomeCoverage(CMDINPUT *cmd, CHROMOSOMES *chr) {
     BAMFILES *bamcurr = cmd->bamfiles;
     pthread_t thread_id[cmd->threads];
     int i = 0;
-    //cmd->chr = head;
 
     fprintf(stderr, "\nImporting sequencing coverages\n");
     THREADS *threadStruct = (THREADS *) malloc(cmd->threads * sizeof (THREADS));
@@ -693,7 +690,6 @@ void MultiGenomeScaler(CMDINPUT *cmd, CHROMOSOMES *chr) {
     BAMFILES *bamcurr = cmd->bamfiles;
     pthread_t thread_id[cmd->threads];
     int i = 0;
-    //cmd->chr = head;
 
     THREADS *threadStruct = (THREADS *) malloc(cmd->threads * sizeof (THREADS));
     for (i = 0; i < cmd->threads; i++) {
@@ -754,7 +750,6 @@ void MultiGenomeSmoother(CMDINPUT *cmd, CHROMOSOMES *chr) {
     BAMFILES *bamcurr = cmd->bamfiles;
     pthread_t thread_id[cmd->threads];
     int i = 0;
-    //cmd->chr = head;
 
     THREADS *threadStruct = (THREADS *) malloc(cmd->threads * sizeof (THREADS));
     for (i = 0; i < cmd->threads; i++) {
@@ -826,7 +821,6 @@ void MultiGenomeTransform(CMDINPUT *cmd, CHROMOSOMES *chr) {
     BAMFILES *bamcurr = cmd->bamfiles->next;
     pthread_t thread_id[cmd->threads];
     int i = 0;
-    //cmd->chr = head;
 
     THREADS *threadStruct = (THREADS *) malloc(cmd->threads * sizeof (THREADS));
     for (i = 0; i < cmd->threads; i++) {
@@ -888,7 +882,6 @@ void CalculateCoverageOfChromosomeBins(CHROMOSOMES *head, BAMFILES *bhead, int p
             if (curr->blacklist == 0) {
                 printf("\tChr: %s, sample [ %d ] and %d\n", curr->name, bcurr->id, curr->blacklist);
                 hts_itr_t *iter = bam_itr_querys(idx, bamHdr, curr->name);
-                //cov = CalculateCoverage(fp_in, iter, aln, curr->length, curr->name, cmd);
                 curr->coverages[bcurr->id] = BinCoverage(cov, curr->length, bin_size, curr->numberOfBins);
                 curr->coverages[bcurr->id] = scaleBins(curr->coverages[bcurr->id], bcurr->scale, curr->numberOfBins, (float) pseudocount);
                 

@@ -19,7 +19,6 @@
 extern "C" {
 #endif
     void FreeAllocatedData(void);
-    void ComputeCoverageGenome(char *infile, char *infile2, int binSize);
     void ComputeCoverageChIPpeak(CMDINPUT *cmd);
     void NormalizeBAMS(CMDINPUT *cmd);
     void PrintUsage(char *pname);

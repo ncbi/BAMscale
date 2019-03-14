@@ -51,29 +51,6 @@ void FreeAllocatedData(void) {
     //DestroyRatioStruct(rhead);
 }
 
-void ComputeCoverageGenome(char *infile, char *infile2, int binSize) {
-    /*no_of_samples++;
-    BAMhead = AddBAMstruct(infile, BAMhead);
-    no_of_samples++;
-    BAMhead = AddBAMstruct(infile2, BAMhead);
-    
-    CHROMhead = ImportChromosomeDataFromBAM(infile, no_of_samples);
-    CHROMhead = ComputeBins(CHROMhead, binSize);
-    CHROMhead = AllocateBins(CHROMhead, no_of_samples);
-    
-    GetChromosomeCoveragesIDX(CHROMhead, BAMhead);
-    GetGenomeCoveragesIDX(CHROMhead, BAMhead);
-    
-    ComputeSamplescales(BAMhead, CHROMhead, 1);
-    printf("Calculating BIN coverages\n");
-    
-    CalculateCoverageOfChromosomeBinsMultithreaded(CHROMhead, BAMhead, 0, binSize, 1, 6);
-    CalculateRatiosAll(rhead, CHROMhead, BAMhead, no_of_samples, 10, 1000, binSize, "/Users/pongorls/NetBeansProjects/hg38.chrom.sizes.sorted");
-
-    FreeAllocatedData();*/
-    return;
-}
-
 void ComputeCoverageChIPpeak(CMDINPUT *cmd) {
     PEAK *head = NULL;
     BAMFILES *curr = NULL;
@@ -106,9 +83,6 @@ void ComputeCoverageChIPpeak(CMDINPUT *cmd) {
     PrintBlacklistedChromosomes(CHROMhead, cmd->no_of_samples);
 
     if (cmd->genome_coverage == 1) {
-        fprintf(stderr, "\nComputing coverage by parsing entire BAM file (this can take long, using the idx with option \'--seqcov 0\' is quicker)\n");
-        fprintf(stderr, "\tthis can take long, using the idx with option \'--seqcov 0\' is quicker\n");
-
         MultiGenomeReadCoverage(cmd, CHROMhead);
     }
     else {
@@ -138,8 +112,6 @@ void ComputeCoverageChIPpeak(CMDINPUT *cmd) {
     fprintf(stderr, "\nProcessing BAM files\n");
     MultiCoverage(cmd->bamfiles, head, cmd);
 
-    //AllocateCovs(head);
-
     if (cmd->outdir)
         ofile_len = strlen(cmd->outdir);
 
@@ -161,7 +133,6 @@ void ComputeCoverageChIPpeak(CMDINPUT *cmd) {
 
     strcat(ofile, "raw_coverages.tsv");
 
-    //GetBEDCoveragesBAM(BAMhead, head, 0);
     WriteMultiCovsRaw(cmd->bamfiles, head, cmd->no_of_samples, ofile);
 
     if (ofile)
@@ -341,7 +312,6 @@ void NormalizeBAMS(CMDINPUT *cmd) {
             curr = curr->next;
         }
     }
-    //Quantiles(CHROMhead, 1, cmd);
 }
 
 void PrintUsage(char *pname) {
@@ -356,7 +326,7 @@ void PrintUsage(char *pname) {
     fprintf(stderr, "\t========\t===========\n");
 
     fprintf(stderr, "\t   cov\t\tCalculate coverage of BED coordinates in BAM file(s). Outputs are raw read counts, FPKM and TPM normalized values.\n");
-    fprintf(stderr, "\t   scale\tConvert BAM files to BigWig,; scale one or multiple files to genome size or to each other.\n");
+    fprintf(stderr, "\t   scale\tConvert BAM files to BigWigs; scale one or multiple files to genome size or to each other.\n");
 }
 
 /*
@@ -394,17 +364,12 @@ int main(int argc, char **argv) {
         PrintUsage(argv[0]);
     }
 
-    //if (found > 0)
-
-    //else
-    //    fprintf(stderr, "\nUsage: \"%s cov\" to get more options\n", argv[0]);
-
     if (cmd){
         DestroyCMDinput(cmd);
         FreeAllocatedData();
         free(cmd);
     }
-    //no_of_samples++;
+
     return (EXIT_SUCCESS);
 }
 

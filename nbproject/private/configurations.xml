@@ -24,9 +24,18 @@
       </nativedebugger>
       <runprofile version="9">
         <runcommandpicklist>
-          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" scale --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/SRR7440353.sorted.dedup.bam -z 1000 --operation rfd -t 8 -q 10</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/  -z 1000 --operation rfd -t 8 -q 10</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam   -z 1000 --operation rfd -t 8 -q 10</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/ --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/ -t 8 -q 10</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/ --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/EdU_seq_aB_28h_HU_28h_0.5mM_rep1.sorted.dedup.bam -t 8 -q 10</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/SRR7440353.sorted.dedup.bam --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/EdU_seq_aB_28h_HU_28h_0.5mM_rep1.sorted.dedup.bam -t a -q 10</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/SRR7440353.sorted.dedup.bam --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/EdU_seq_aB_28h_HU_28h_0.5mM_rep1.sorted.dedup.bam -t 8 -e 0 -q 10 -Z</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/SRR7440353.sorted.dedup.bam --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/EdU_seq_aB_28h_HU_28h_0.5mM_rep1.sorted.dedup.bam -t 8 -e 0 -q 10</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/SRR7440353.sorted.dedup.bam --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/EdU_seq_aB_28h_HU_28h_0.5mM_rep1.sorted.dedup.bam -t 8 -q 10</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" cov -e 0 --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/SRR7440353.sorted.dedup.bam --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/EdU_seq_aB_28h_HU_28h_0.5mM_rep1.sorted.dedup.bam -t 8 -q 10</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>"${OUTPUT_PATH}"</runcommand>
+        <runcommand>"${OUTPUT_PATH}" cov -e 0 --bed /Users/pongorls/NetBeansProjects/BAMcompare_v2/merged.sorted.bed --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/SRR7440353.sorted.dedup.bam --bam /Users/pongorls/NetBeansProjects/BAMcompare_v2/EdU_seq_aB_28h_HU_28h_0.5mM_rep1.sorted.dedup.bam -t 8 -q 10</runcommand>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <terminal-type>0</terminal-type>

@@ -252,7 +252,7 @@ void PrintBedgraph(RATIOS *ptr, int binSize) {
     strcat(outfile, ".bedgraph");
 
     fp = fopen(outfile, "w+");
-    //printf("%s\n", outfile);
+
     while (p != NULL) {
         for (i = 0; i < p->nbins - 1; i++)
             fprintf(fp, "%s\t%d\t%d\t%.3f\n", p->name, i * binSize, (i + 1) * binSize, p->ratio[i]);
@@ -288,7 +288,6 @@ void PrintBedgraphOrdered(RATIOS *ptr, int binSize, char *chromfile) {
     strcat(outfile, ".bedgraph");
 
     fp = fopen(outfile, "w+");
-    //printf("%s\n", outfile);
 
     while (fgets(line, sizeof (line), handler)) {
         if ((pos = strchr(line, '\n')) != NULL)
@@ -410,8 +409,6 @@ void PrintBigWigOrdered(RATIOS *ptr, int binSize, char *chromfile) {
                         end = (uint32_t) ((i + 1) * binSize);
                         bwAddIntervals(fp, &p->name, &start, &end, &p->ratio[i], (uint32_t) 1);
                     }
-
-                    //fprintf(fp, "%s\t%d\t%d\t%.3f\n", p->name, i*binSize, (i+1)*binSize, p->ratio[i]);
                 }
 
                 p = p->next;
@@ -479,11 +476,9 @@ RATIOS *CalculateRatiosAll(RATIOS *head, CHROMOSOMES *chead, BAMFILES *bhead, in
 
         if (chromsizes)
             PrintBigWigOrdered(curr, binSize, chromsizes);
-            //PrintBedgraphOrdered(curr, binSize, chromsizes);
 
         else
             PrintBedgraph(curr, binSize);
-        //Quantiles(curr->chrcovs);
 
         bcurr = bcurr->next;
     }

@@ -160,9 +160,7 @@ void Segmenting(CHROMOSOMES *head, CMDINPUT *cmd, int sampleid, float upper, flo
             end = 0;
             segment = NULL;
 
-            for(i = 0; i < curr->numberOfBins; i++) {
-                //printf("%d: %f\t%f\n", i, curr->coverages[sampleid][i], median);
-                
+            for(i = 0; i < curr->numberOfBins; i++) {              
                 if(curr->coverages[sampleid][i] == 0) {
                     currstate = 0;
                 }
@@ -234,13 +232,6 @@ void Segmenting(CHROMOSOMES *head, CMDINPUT *cmd, int sampleid, float upper, flo
                     
                     else {
                         if(tmp != segment->next) {
-                            /*if(tmp->start - segment->end < minsize) {
-                                if(tmp->value == segment->value) {
-                                    segment->end = tmp->start;
-                                }
-                            }*/
-                            
-                            
                             segment->next = tmp;
                             tmp->prev = segment;
                         }
@@ -270,7 +261,6 @@ void Segmenting(CHROMOSOMES *head, CMDINPUT *cmd, int sampleid, float upper, flo
             segment = segmenthead;
             
             while(segment != NULL) {
-                //if(segment->end - segment->start > minsize) {
                     if(segment->value == 4)
                         fprintf(fp_s, "%s\t%d\t%d\n", curr->name, segment->start*cmd->binSize, segment->end*cmd->binSize);
 
@@ -282,14 +272,10 @@ void Segmenting(CHROMOSOMES *head, CMDINPUT *cmd, int sampleid, float upper, flo
 
                     if(segment->value == 1)
                         fprintf(fp_w, "%s\t%d\t%d\n", curr->name, segment->start*cmd->binSize, segment->end*cmd->binSize);
-                //}
-                    //if(segment->end - segment->start >= 50 && segment->value > 2)
-                    //printf("%d\t%d\t%d\n", segment->start*5, segment->end*5, segment->value);
+ 
                     segment = segment->next;
             }
-            
-            printf("Done\n");
-            
+                        
             DestroySegments(segmenthead);
             segment = NULL;
             segmenthead = NULL;
@@ -297,9 +283,7 @@ void Segmenting(CHROMOSOMES *head, CMDINPUT *cmd, int sampleid, float upper, flo
         
         curr = curr->next;
     }
-    
-    //DestroySegments(segment);
-    
+        
     fclose(fp_s);
     fclose(fp_sm);
     fclose(fp_wm);
@@ -307,7 +291,6 @@ void Segmenting(CHROMOSOMES *head, CMDINPUT *cmd, int sampleid, float upper, flo
 }
 
 void Quantiles(CHROMOSOMES *head, int sampleid, CMDINPUT *cmd) {
-    //int64_t gensize = CalculateGenSize(head);
     int64_t gensize = CalculateNonZeroBins(head, sampleid);
     fprintf(stderr, "Genome size: %" PRIu64 "\n", gensize);
  
@@ -317,7 +300,7 @@ void Quantiles(CHROMOSOMES *head, int sampleid, CMDINPUT *cmd) {
     float median = -1;
     float lower = -1;
     
-    printf("Sorting genome ( %d ) \n", sampleid);
+    fprintf(stderr, "Sorting genome ( %d ) \n", sampleid);
     
     qsort(genbin, gensize, sizeof(float), compare_float);
     
@@ -325,10 +308,10 @@ void Quantiles(CHROMOSOMES *head, int sampleid, CMDINPUT *cmd) {
     median = genbin[(int)round(gensize*0.5)];
     lower = genbin[(int)round(gensize*0.25)];
             
-    printf("Quantiles:\n");
-    printf("\tUpper: %f\n", upper);
-    printf("\tMedian: %f\n", median);
-    printf("\tLower: %f\n", lower);
+    fprintf(stderr, "Quantiles:\n");
+    fprintf(stderr, "\tUpper: %f\n", upper);
+    fprintf(stderr, "\tMedian: %f\n", median);
+    fprintf(stderr, "\tLower: %f\n", lower);
 
     Segmenting(head, cmd, sampleid, upper, median, lower);
     

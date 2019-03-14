@@ -136,10 +136,6 @@ float *BinCoverage(int *coverage, int chr_len, int binSize, int nbins) {
     int binstart = 0;
     int binend = 0;
     
-    //for (i = 0; i < nbins; i++) {
-    //    bincov[i] = 0;
-    //}
-
     for (i = 0; i < nbins; i++) {
         if (i == 0) {
             binstart = 0;
@@ -164,8 +160,6 @@ float *BinCoverage(int *coverage, int chr_len, int binSize, int nbins) {
         if(bincov[i] > 0)
             bincov[i] = bincov[i] / ((float) (binend - binstart));
     }
-
-    //bincov = AddPseudoToZeroCov(bincov, nbins);
 
     return bincov;
 }

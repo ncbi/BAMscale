@@ -22,8 +22,6 @@ extern "C" {
     void DestroyThreadStruct(THREADS **head, int no_of_threads);
     THREADS *CreateThreadStruct(char *chrname);
     THREADS *AddElement(THREADS *head, char *chrname);
-    void * AnalyzeSample(void * voidA);
-    void CalculateCoverageOfChromosomeBinsMultithreaded(CHROMOSOMES *head, BAMFILES *bhead, int paired_end, int bin_size, int pseudocount, int no_of_threads);
 #ifdef __cplusplus
 }
 #endif

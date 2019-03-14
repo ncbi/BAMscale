@@ -100,16 +100,6 @@ void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
             bwAddIntervalSpanSteps(fp, chr->name, start, cmd->binSize, cmd->binSize, &chr->coverages[curr->id][0], (uint32_t) 1);
             intervals = chr->coverages[curr->id] + 1;
             bwAppendIntervalSpanSteps(fp, intervals, (uint32_t) chr->numberOfBins - 1);
-            /*for(i = 1; i < chr->numberOfBins; i++) {
-                start = (uint32_t)(i*cmd->binSize);
-                end = (uint32_t)((i+1)*cmd->binSize);
-                val = 1.0;
-
-                //printf("%d - %d\n", i*cmd->binSize, (i+1)*cmd->binSize);
-
-                //if(chr->coverages[curr->id][i] > 0)
-                bwAppendIntervalSpanSteps(fp, &chr->coverages[curr->id][i], (uint32_t)1);
-            }*/
         }
 
         chr = chr->next;

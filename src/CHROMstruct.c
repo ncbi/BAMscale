@@ -252,14 +252,6 @@ CHROMOSOMES *AllocateBins(CHROMOSOMES *head, int no_of_samples) {
             }
 
             for (i = 0; i < no_of_samples; i++) {
-                /*curr->coverages[i] = (float *) malloc(sizeof (float) * no_of_samples);
-
-                if (curr->coverages[i] == NULL) {
-                    printf("ERROR: could not allocate memory for bins at chr: %s for sample no. [ %d ]\n", curr->name, i);
-                    FreeAllocatedData();
-                    exit(0);
-                }*/
-
                 curr->allocated++;
             }
         } else {
@@ -306,7 +298,6 @@ void BlacklistChromosomeFiles(CHROMOSOMES *head, char *filename) {
     }
 
     fclose(handler);
-    //return head;
 }
 
 void DestroyChromCovStruct(CHRCOV *head) {
@@ -337,12 +328,6 @@ CHRCOV *CreateChromCovStruct(char *name, int id, int nbins) {
 
     ptr->next = NULL;
     ptr->ratio = NULL;
-
-    /*if(ptr->ratio == NULL) {
-        printf("ERROR: could not allocate memory for bins at chr: %s for sample no. [ %d ]\n", ptr->name, id);
-        FreeAllocatedData();
-        exit(0); 
-    }*/
 
     return ptr;
 }

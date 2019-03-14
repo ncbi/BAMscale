@@ -15,13 +15,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <htslib/sam.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "Definitions.h"
 #include "BAMstructs.h"
 
-/*
- * 
- */
+int CheckIndexFile(char *fname) {
+    if(fname == NULL)
+        return 0;
+    
+    char *idx = (char *)calloc(strlen(fname) + 4, sizeof(char));
+    strcpy(idx, fname);
+    strcat(idx, ".bai");
+    
+    if(access( idx, F_OK ) == -1)
+        return 0;
+    
+    return 1;
+}
+
 void DestroyBAMstruct(BAMFILES *head) {
     BAMFILES *curr = head;
 
@@ -40,9 +56,6 @@ void DestroyBAMstruct(BAMFILES *head) {
     curr = NULL;
 }
 
-/*
- * 
- */
 BAMFILES *AddBAMstruct(char *BAMname, BAMFILES *head) {
     BAMFILES *ptr = (BAMFILES *) calloc (1, sizeof (BAMFILES));
     BAMFILES *curr = head;
@@ -59,6 +72,7 @@ BAMFILES *AddBAMstruct(char *BAMname, BAMFILES *head) {
     char *p = strrchr(BAMname, '/');
         
     if(p) {
+        p++;
         ptr->shortname = strdup(p);
     }
     

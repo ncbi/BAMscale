@@ -229,8 +229,15 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
 
             case 'i':
                 if (access(tmpstr, F_OK) != -1) {
-                    cmd->bamfiles = AddBAMstruct(tmpstr, cmd->bamfiles);
-                    cmd->no_of_samples++;
+                    if(CheckIndexFile(tmpstr) ==0) {
+                       fprintf(stderr, "ERROR: BAM file index (.bai) does not exist ( %s )\n", tmpstr);
+                       error++;
+                    }
+                    
+                    else {                   
+                        cmd->bamfiles = AddBAMstruct(tmpstr, cmd->bamfiles);
+                        cmd->no_of_samples++;
+                    }
                 } else {
                     fprintf(stderr, "ERROR: BAM file does not exist ( %s )\n", tmpstr);
                     error++;
@@ -454,6 +461,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
 
             case '?':
                 /* getopt_long already printed an error message. */
+                error++;
                 break;
 
             default:
@@ -498,11 +506,6 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
             error++;
         }
     }
-
-    /*if (cmd->smoothBin == 0 && cmd->tracksmooth != 0) {
-        fprintf(stderr, "ERROR: Smoothening was not set, but tracksmooth was altered?\n");
-        error++;
-    }*/
 
     if (strcmp(cmd->scale, INPUTS_NO) == 0 && strcmp(cmd->operation, INPUTS_UNSCALED) != 0) {
         fprintf(stderr, "ERROR: Scaling was turned off, but operation is not set to \'unscaled\'.\n");
@@ -615,9 +618,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
     fprintf(stderr, "\tOperation type: %s\n", cmd->operation);
 
     fprintf(stderr, "\n");
-
-    //PrintScaleMessage(argv[0]);
-    //return NULL;    
+    
     if (libstr)
         free(libstr);
     return cmd;
@@ -644,7 +645,7 @@ void PrintMultiCovMessage(char *pname) {
 
     fprintf(stderr, "\nSequencing coverage computation options:\n");
     fprintf(stderr, "\t--seqcov|-e <int>\tCompute sequencing coverage from BAM file quickly using the index (option \'0\'),\n");
-    fprintf(stderr, "\t\t\t\tor count number of reads by parsing entire BAM file (much slower, IO intensive; set to \'1\')\n");
+    fprintf(stderr, "\t\t\t\tor count number of reads by parsing entire BAM file (slower, but more accurate; set to \'1\' [default])\n");
     fprintf(stderr, "\n\t--blacklist|-c <file>\tInput file with list of chromosomes to blacklist when computing coverage for normalization\n");
     fprintf(stderr, "\n\t--bedsubtract|-u <int>\tBED file with regions to subtract when computing coverage for normalization\n");
     fprintf(stderr, "\t\t\t\tThese coordinates should not overlap so reads are not counted multiple times\n");
@@ -710,7 +711,7 @@ CMDINPUT *MultiCovParser(int argc, char **argv) {
         /* getopt_long stores the option index here. */
         int option_index = 0;
         
-        c = getopt_long(argc, argv, "rsfpdq:l:i:b:t:a:o:n:c:u:mg:x:w", long_options, &option_index);
+        c = getopt_long(argc, argv, "rsfpdq:l:i:b:t:a:o:n:c:u:mg:x:we:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -840,8 +841,15 @@ CMDINPUT *MultiCovParser(int argc, char **argv) {
 
             case 'i':
                 if (access(tmpstr, F_OK) != -1) {
-                    cmd->bamfiles = AddBAMstruct(tmpstr, cmd->bamfiles);
-                    cmd->no_of_samples++;
+                    if(CheckIndexFile(tmpstr) ==0) {
+                       fprintf(stderr, "ERROR: BAM file index (.bai) does not exist ( %s )\n", tmpstr); 
+                       error++;
+                    }
+                    
+                    else {                   
+                        cmd->bamfiles = AddBAMstruct(tmpstr, cmd->bamfiles);
+                        cmd->no_of_samples++;
+                    }
                 } else {
                     fprintf(stderr, "ERROR: BAM file does not exist ( %s )\n", tmpstr);
                     error++;
@@ -894,7 +902,7 @@ CMDINPUT *MultiCovParser(int argc, char **argv) {
                 break;
 
             case '?':
-                /* getopt_long already printed an error message. */
+                error++;
                 break;
 
             default:
@@ -906,7 +914,7 @@ CMDINPUT *MultiCovParser(int argc, char **argv) {
     argv = argv - 1;
     argc += 1;
     curr = cmd->bamfiles;
-
+    
     if (curr == NULL) {
         fprintf(stderr, "ERROR: No BAM file(s) specified\n");
         error++;
