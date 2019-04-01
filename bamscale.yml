@@ -1,0 +1,4 @@
+  class: DockerRequirement
+  dockerImageId: bamscale
+  dockerFile:
+    $include: https://raw.githubusercontent.com/ncbi/BAMscale/master/Dockerfile
