@@ -29,11 +29,9 @@ RUN /opt/conda/bin/conda install -c bioconda htslib libbigwig
 
 # Add user ubuntu with no password, add to sudo group
 RUN adduser --disabled-password --gecos '' ubuntu
-RUN adduser ubuntu sudo
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-USER ubuntu
 RUN chmod a+rwx /home/ubuntu/
 RUN mkdir /home/ubuntu/bin
+USER ubuntu
 
 ENV URL=https://github.com/pongorlorinc/BAMscale
 ENV FOLDER=BAMscale
