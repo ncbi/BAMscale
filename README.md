@@ -5,7 +5,7 @@ BAMscale
 
 BAMscale is a one-step tool for either 1) quantifying and normalizing the coverage of peaks or 2) generated scaled BigWig files for easy visualization of commonly used DNA-seq capture based methods.
 
-For detailed information, visit the [wiki](https://github.com/pongorlorinc/BAMscale/wiki) page
+For detailed information, visit the [wiki](https://github.com/ncbi/BAMscale/wiki) page
 
 ## Reference
 
