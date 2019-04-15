@@ -504,7 +504,7 @@ void CalculateFPKM(BAMFILES *bhead, PEAK *head) {
     float kilo_length = 0;
 
     while (bcurr != NULL) {
-        pm = bcurr->read_coverage / 1000000;
+        pm = (float) bcurr->read_coverage / 1000000;
         curr = head;
 
         while (curr != NULL) {
