@@ -318,7 +318,7 @@ void PrintUsage(char *pname) {
     char *ptr = strrchr(pname, '/');
     ptr = ptr ? ptr + 1 : (char *) pname;
 
-    fprintf(stderr, "\nBAMcompare: at tool to quantify peaks, and scale sequencing data\n");
+    fprintf(stderr, "\nBAMscale: a tool to quantify peaks, and scale sequencing data\n");
     fprintf(stderr, "Version: %s\n", "v1.0");
 
     fprintf(stderr, "\nUsage: %s <command>\n", ptr);
