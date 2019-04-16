@@ -5,7 +5,7 @@ BAMscale
 
 BAMscale is a one-step tool for either 1) quantifying and normalizing the coverage of peaks or 2) generated scaled BigWig files for easy visualization of commonly used DNA-seq capture based methods.
 
-For detailed information, visit the [wiki](https://github.com/pongorlorinc/BAMscale/wiki) page
+For detailed information, visit the [wiki](https://github.com/ncbi/BAMscale/wiki) page
 
 ## Reference
 
@@ -18,6 +18,29 @@ http://www.htslib.org/
 
 ### libBigWig
 Clone the libBigWig repository from GitHub: https://github.com/dpryan79/libBigWig
+
+    git clone https://github.com/dpryan79/libBigWig.git
+
+Compile it and set the environment variables for BAMscale
+
+    cd libBigWig/
+    make
+    export LIBBIGWIG_DIR=`pwd`
+    export CPPFLAGS="-I $LIBBIGWIG_DIR"
+    export LDFLAGS="-L $LIBBIGWIG_DIR -Wl,-rpath,$LIBBIGWIG_DIR"
+    
+## Installation
+
+After compiling the libBigWig library and samtools (if not already installed) clone the BAMscale from GitHub
+
+    git clone https://github.com/ncbi/BAMscale.git
+    
+and go to the BAMscale folder to compile the program:
+
+    cd BAMscale/
+    make
+    
+A bin folder will be created with the BAMscale executable.
 
 ## Usage
 
