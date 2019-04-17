@@ -28,7 +28,7 @@ int CheckIndexFile(char *fname) {
     if(fname == NULL)
         return 0;
     
-    char *idx = (char *)calloc(strlen(fname) + 4, sizeof(char));
+    char *idx = (char *)calloc(strlen(fname) + 5, sizeof(char));
     strcpy(idx, fname);
     strcat(idx, ".bai");
     
