@@ -31,9 +31,10 @@ RUN /opt/conda/bin/conda install -c bioconda htslib libbigwig
 RUN adduser --disabled-password --gecos '' ubuntu
 RUN chmod a+rwx /home/ubuntu/
 RUN mkdir /home/ubuntu/bin
+RUN chown -R ubuntu /home/ubuntu
 USER ubuntu
 
-ENV URL=https://github.com/pongorlorinc/BAMscale
+ENV URL=https://github.com/ncbi/BAMscale
 ENV FOLDER=BAMscale
 ENV PATH="/home/ubuntu/bin:${PATH}"
 ENV CONDA_DIR="/opt/conda/"
