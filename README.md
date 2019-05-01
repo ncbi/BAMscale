@@ -13,7 +13,7 @@ In the [wiki](https://github.com/ncbi/BAMscale/wiki) page we have more detailed 
 1. [OK-seq and RFD Track Generation](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-OKseq-RFD-(Replication-Fork-Directionality)-Track-Generation)
 2. [Quantifying Peaks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Quantifying-Peak-Coverages-from-Multiple-BAM-Files#comparing-atac-seq-changes-induced-from-treatment)
 3. [Generating Scaled Coverage Tracks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Generating-Scaled-Coverage-Tracks#preparing-input-data-for-bamscale)
-4. [END-seq data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Scaling-and-Smoothening-ENDseq-Data)
+4. [END-seq data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Processing-END-seq-Data)
 5. [Log2 Coverage Tracks for Replication Timing Data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Replication-Timing-log2-Coverage-Ratio-from-Two-BAM-Files)
 6. [Smoothening Function for Coverage Tracks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Smooth-Coverage-Tracks)
 
