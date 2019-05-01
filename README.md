@@ -1,17 +1,32 @@
 BAMscale
 ===
 
-<img src="https://github.com/ncbi/BAMscale/blob/master/doc/images/MAIN.png"  width="600" height="200" />
+<p align="center">
+<img src="https://github.com/ncbi/BAMscale/blob/master/doc/images/MAIN.png"  width="800" height="250" />
+</p>
 
 BAMscale is a one-step tool for either 1) quantifying and normalizing the coverage of peaks or 2) generated scaled BigWig files for easy visualization of commonly used DNA-seq capture based methods.
 
-For detailed information, visit the [wiki](https://github.com/ncbi/BAMscale/wiki) page
+
+In the [wiki](https://github.com/ncbi/BAMscale/wiki) page we have more detailed tutorials for:
+
+1. [OK-seq and RFD Track Generation](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-OKseq-RFD-(Replication-Fork-Directionality)-Track-Generation)
+2. [Quantifying Peaks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Quantifying-Peak-Coverages-from-Multiple-BAM-Files#comparing-atac-seq-changes-induced-from-treatment)
+3. [Generating Scaled Coverage Tracks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Generating-Scaled-Coverage-Tracks#preparing-input-data-for-bamscale)
+4. [END-seq data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Scaling-and-Smoothening-ENDseq-Data)
+5. [Log2 Coverage Tracks for Replication Timing Data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Replication-Timing-log2-Coverage-Ratio-from-Two-BAM-Files)
+6. [Smoothening Function for Coverage Tracks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Smooth-Coverage-Tracks)
+
+
+For additional information, visit the [wiki](https://github.com/ncbi/BAMscale/wiki) page.
 
 ## Reference
 
-
+Currently not available
 
 ## Requirements
+
+We have a detailed installation for [Linux](https://github.com/ncbi/BAMscale/wiki/Installation#detailed-installation-for-linux-based-os) and [MAC](https://github.com/ncbi/BAMscale/wiki/Installation#detailed-installation-for-mac-os-with-homebrew) (with homebrew) based systems or through [conda](https://github.com/ncbi/BAMscale/wiki/Installation#detailed-installation-for-mac-os-with-conda). There is also a precompiled version for linux ready for usage available at the [releases](https://github.com/ncbi/BAMscale/releases).
 
 ### samtools
 http://www.htslib.org/
@@ -29,6 +44,12 @@ Compile it and set the environment variables for BAMscale
     export CPPFLAGS="-I $LIBBIGWIG_DIR"
     export LDFLAGS="-L $LIBBIGWIG_DIR -Wl,-rpath,$LIBBIGWIG_DIR"
     
+Optionally (and if you have permission), the libbigwig can also be installed
+
+    make install
+    
+In this case, the flags don't have to be set in the terminal.
+
 ## Installation
 
 After compiling the libBigWig library and samtools (if not already installed) clone the BAMscale from GitHub
