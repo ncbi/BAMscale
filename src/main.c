@@ -297,7 +297,8 @@ void NormalizeBAMS(CMDINPUT *cmd) {
     if (strcmp(cmd->operation, "scaled") != 0 && strcmp(cmd->operation, "unscaled") != 0) {
         fprintf(stderr, "Transforming coverage tracks: %s\n", cmd->operation);
         MultiGenomeTransform(cmd, CHROMhead);
-
+        cmd->strand = 0;
+        
         if (cmd->smoothBin > 0) {
             if (cmd->tracksmooth == 0 || cmd->tracksmooth == 2) {
                 fprintf(stderr, "\nSmoothening transformed signal\n");

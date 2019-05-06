@@ -798,7 +798,7 @@ void *TransformBinsmultithread(void * voidA) {
 
     while (curr != NULL) {
         if (curr->tid == ptr->pid && curr->blacklist == 0) {
-            if (strcmp(ptr->cmd->operation, INPUTS_LOG2) == 0)
+            if (strcmp(ptr->cmd->operation, INPUTS_LOG2) == 0 || strcmp(ptr->cmd->operation, INPUTS_ENDR) == 0 || strcmp(ptr->cmd->operation, INPUTS_END) == 0 || strcmp(ptr->cmd->operation, INPUTS_REP) == 0)
                 curr->coverages[ptr->sample_id] = logTwoCoverageRatio(curr->coverages[ptr->sample_id], curr->coverages[0], curr->numberOfBins, 0.1);
 
             if (strcmp(ptr->cmd->operation, INPUTS_RATIO) == 0)

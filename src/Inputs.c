@@ -49,7 +49,9 @@ CMDINPUT *CreateCMDinput(void) {
     ptr->min_insert_size = 0;
     ptr->fragment_size_filter = 0;
     ptr->binSize = 5;
+    ptr->binSizeChange = 0;
     ptr->smoothBin = 0;
+    ptr->smoothBinChange = 0;
     ptr->tracksmooth = 1;
     ptr->blacklist_file = NULL;
     ptr->blacklist_bed = NULL;
@@ -123,6 +125,19 @@ void PrintScaleMessage(char *pname) {
     fprintf(stderr, "\t\t\t\tOptions are: \n\t\t\t\t  1) scaled: output scaled tracks.\n\t\t\t\t  2) unscaled: do not scale files in any way.\n\t\t\t\t  2) log2: log2 transform against first BAM file.\n");
     fprintf(stderr, "\t\t\t\t  3) ratio: coverage ratio against first BAM file.\n\t\t\t\t  4) subtract: subtract coverage against first BAM file.\n");
     fprintf(stderr, "\t\t\t\t  5) rfd: OK-seq RFD calculation\n");
+    fprintf(stderr, "\t\t\t\t  6) endseq: strand-specific coverages\n");
+    fprintf(stderr, "\t\t\t\t  6) endseqr: strand-specific coverages (reverse strand score is negative)\n");
+    fprintf(stderr, "\t\t\t\t  7) reptime: replication timing mode for two BAM files (binsize: 100bp, smoothen: 500 bins)\n");
+    fprintf(stderr, "\n\t\t\t\tShort description of settings:\n");
+    fprintf(stderr, "\t\t\t\tendseq: generates scaled coverage tracks of positive/negative strands,\n");
+    fprintf(stderr, "\t\t\t\t\tand the log2 ratios\n");
+    fprintf(stderr, "\n\t\t\t\tendseqr: generates scaled coverage tracks of positive/negative strands,\n");
+    fprintf(stderr, "\t\t\t\t\tthe negative strand coverage will be negative, and the log2 ratios are calculated\n");
+    fprintf(stderr, "\n\t\t\t\treptime: generates scaled coverage tracks and log2 ratios of two BAM files,\n");
+    fprintf(stderr, "\t\t\t\t\tsetting the binsize to 100bp and smoothening smoothen to 500 bins\n");
+
+    fprintf(stderr, "\n\t-S <flag>\t\tOutput strand-specific normalized tracks. One BAM file can be specified only\n");
+    
     fprintf(stderr, "\n\t--binsize|-z <int>\tSize of bins for output bigWig/bedgraph generation (default: %d)\n", cmd->binSize);
 
     fprintf(stderr, "\nSequencing coverage computation options:\n");
@@ -308,6 +323,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
 
             case 'z':
                 cmd->binSize = atoi(tmpstr);
+                cmd->binSizeChange = 1;
 
                 break;
 
@@ -366,6 +382,14 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
                 } else if(strcmp(tmpstr, INPUTS_RFD) == 0) {                    
                     cmd->operation = strdup(INPUTS_RFD);
                     cmd->strandsplit = 1;
+                } else if(strcmp(tmpstr, INPUTS_END) == 0) {                    
+                    cmd->operation = strdup(INPUTS_END);
+                    cmd->strandsplit = 1;
+                } else if(strcmp(tmpstr, INPUTS_ENDR) == 0) {                    
+                    cmd->operation = strdup(INPUTS_ENDR);
+                    cmd->strandsplit = 1;
+                } else if(strcmp(tmpstr, INPUTS_REP) == 0) {                    
+                    cmd->operation = strdup(INPUTS_REP);
                 } else {
                     fprintf(stderr, "ERROR: invalid operation type specified ( %s )\n", tmpstr);
                     error++;
@@ -374,6 +398,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
 
             case 'j':
                 cmd->smoothBin = atoi(tmpstr);
+                cmd->smoothBinChange = 1;
 
                 if (cmd->smoothBin < 0) {
                     fprintf(stderr, "ERROR: no. of bins for smoothening can't be negative ( %d )\n", cmd->smoothBin);
@@ -560,6 +585,19 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
     if (error > 0) {
         PrintScaleMessage(argv[0]);
         return NULL;
+    }
+    
+    if (strcmp(cmd->operation, INPUTS_RFD) == 0) {
+        if(cmd->binSizeChange == 0)
+            cmd->binSize = 1000;
+    }
+    
+    if (strcmp(cmd->operation, INPUTS_REP) == 0) {
+        if(cmd->binSizeChange == 0)
+            cmd->binSize = 100;
+        
+        if(cmd->smoothBinChange == 0)
+            cmd->smoothBin = 500;
     }
 
     fprintf(stderr, "Computing coverage of regions\n");

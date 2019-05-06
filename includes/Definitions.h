@@ -144,7 +144,9 @@ extern "C" {
         char *operation;
         
         int binSize;
+        int binSizeChange;
         int smoothBin;
+        int smoothBinChange;
         int tracksmooth;
     } CMDINPUT;
     

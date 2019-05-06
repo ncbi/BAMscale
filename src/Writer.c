@@ -26,6 +26,7 @@
 #include "CHROMstruct.h"
 #include "segmenter.h"
 #include "binning.h"
+#include "Inputs.h"
 
 void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
     char **chrnames = NULL;
@@ -78,8 +79,15 @@ void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
     }
     else {
         strcat(outfile, curr->shortname);
-        strcat(outfile, "_vs_");
-        strcat(outfile, sfile);
+        
+        if(strcmp(cmd->operation, INPUTS_END) != 0 && strcmp(cmd->operation, INPUTS_ENDR) != 0 && strcmp(cmd->operation, INPUTS_RFD) != 0) {
+            strcat(outfile, "_vs_");
+            strcat(outfile, sfile);
+        }
+        
+        if(strcmp(cmd->operation, INPUTS_END) == 0 || strcmp(cmd->operation, INPUTS_ENDR) == 0) {
+            strcat(outfile, ".log2");
+        }
     }
 
     strcat(outfile, ".");
@@ -99,7 +107,25 @@ void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
 
             bwAddIntervalSpanSteps(fp, chr->name, start, cmd->binSize, cmd->binSize, &chr->coverages[curr->id][0], (uint32_t) 1);
             intervals = chr->coverages[curr->id] + 1;
+
+            if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_ENDR) == 0) {
+                
+                for(i = 0; i <= chr->numberOfBins - 1; i++) {
+                    if(intervals[i] > 0)
+                        intervals[i] = -intervals[i]; 
+                }
+            }
+            
             bwAppendIntervalSpanSteps(fp, intervals, (uint32_t) chr->numberOfBins - 1);
+            
+            if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_ENDR) == 0) {
+                for(i = 0; i <= chr->numberOfBins - 1; i++) {
+                    if(intervals[i] < 0) {
+                        intervals[i] = -intervals[i];
+                    }
+                }
+                
+            }
         }
 
         chr = chr->next;
