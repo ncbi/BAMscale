@@ -22,7 +22,8 @@ For additional information, visit the [wiki](https://github.com/ncbi/BAMscale/wi
 
 ## Reference
 
-Currently not available
+BAMscale can be found at **bioR&chi;iv** ([https://doi.org/10.1101/669275](https://www.biorxiv.org/content/10.1101/669275v1))
+
 
 ## Requirements
 
