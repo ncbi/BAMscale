@@ -28,7 +28,7 @@
 
 float *scaleBins(float *carray, float scale, int nbins, float pseudocount) {
     int i = 0;
-
+    
     for (i = 0; i < nbins; i++) {
         if (carray[i] > 0) {
             carray[i] = carray[i] * scale;
@@ -36,7 +36,7 @@ float *scaleBins(float *carray, float scale, int nbins, float pseudocount) {
         } else
             carray[i] = 0;
     }
-
+    
     return carray;
 }
 

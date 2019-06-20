@@ -20,6 +20,7 @@ extern "C" {
 #endif
     void FreeAllocatedData(void);
     void ComputeCoverageChIPpeak(CMDINPUT *cmd);
+    void NormalizeBAMSrna(CMDINPUT *cmd);
     void NormalizeBAMS(CMDINPUT *cmd);
     void PrintUsage(char *pname);
     int main();

@@ -20,6 +20,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    char *returnRNAfilename(CMDINPUT *cmd);
     void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile);
 #ifdef __cplusplus
 }

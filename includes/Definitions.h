@@ -138,10 +138,14 @@ extern "C" {
         int argc;
         int genome_coverage;
         int strandsplit;
+        char *custom_scale;
         
         char *normtype;
         char *scale;
         char *operation;
+        
+        int filtDiffChr;
+        int filtInsSize;
         
         int binSize;
         int binSizeChange;

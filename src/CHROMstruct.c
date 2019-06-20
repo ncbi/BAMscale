@@ -53,7 +53,7 @@ char **GetChromosomeNames(CHROMOSOMES *head, int no_of_chrs) {
     if (no_of_chrs < 1)
         return NULL;
 
-    chrnames = (char **) malloc(sizeof (char **) * no_of_chrs);
+    chrnames = (char **) calloc(no_of_chrs+1, sizeof (char *));
 
     while (curr != NULL) {
         if (i < no_of_chrs) {
@@ -171,7 +171,7 @@ CHROMOSOMES *ImportChromosomeDataFromBAM(char *bamfile, int no_of_samples, int t
             j = 0;
         }
     }
-    
+
     bam_hdr_destroy(hdr);
     sam_close(fp_in);
     return head;
@@ -243,7 +243,7 @@ CHROMOSOMES *AllocateBins(CHROMOSOMES *head, int no_of_samples) {
 
     while (curr != NULL) {
         if (curr->numberOfBins > -1 && curr->blacklist == 0) {
-            curr->coverages = (float **) calloc(no_of_samples+1, sizeof (float **));
+            curr->coverages = (float **) calloc(no_of_samples+1, sizeof (float *));
 
             if (curr->coverages == NULL) {
                 printf("ERROR: could not allocate memory for bins at chr: %s\n", curr->name);

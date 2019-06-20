@@ -204,6 +204,84 @@ void ComputeCoverageChIPpeak(CMDINPUT *cmd) {
     DeleteBEDs(head);
 }
 
+void NormalizeBAMSrna(CMDINPUT *cmd) {
+    BAMFILES *curr = NULL;
+
+    cmd->fragment_count_mode = 0;
+    fprintf(stderr, "Allocating BINS of size %d for chromosomes\n", cmd->binSize);
+    CHROMhead = ImportChromosomeDataFromBAM(cmd->bamfiles->name, cmd->no_of_samples, cmd->threads);
+
+    if (cmd->blacklist_file)
+        BlacklistChromosomeFiles(CHROMhead, cmd->blacklist_file);
+    
+    CHROMhead = ComputeBins(CHROMhead, cmd->binSize);
+    CHROMhead = AllocateBins(CHROMhead, cmd->no_of_samples);
+    
+    cmd->chr = CHROMhead;
+
+    if (cmd->libtype == -1) {
+        fprintf(stderr, "Detecting library type\n");
+        cmd->libtype = DetectLibraryType(cmd->bamfiles);
+
+        if (cmd->libtype == 0) {
+            fprintf(stderr, "\tLibrary seems single-end\n");
+
+            if (cmd->fragment_count_mode == 1 && cmd->fragment_size == 0) {
+                fprintf(stderr, "ERROR: fragment mode counting is enable, library is single-end, but fragment size is set to 0.");
+                fprintf(stderr, "WARNING: Please re-run program without enabling fragment-counting mode, or set fragment size");
+                PrintMultiCovMessage(cmd->argv[0]);
+                return;
+            }
+        } else
+            fprintf(stderr, "\tLibrary seems paired-end\n");
+    }
+
+    //fprintf(stderr, "\nComputing coverage from the idx of BAM files\n");
+    //GetChromosomeCoveragesIDX(CHROMhead, cmd->bamfiles);
+    if(strcmp(cmd->scale, INPUTS_CUSTOM) != 0) {
+        cmd->bamfiles->scale = 1;
+        cmd->bamfiles->genome_scale = 1;
+    }
+    
+    if (cmd->genome_coverage > 0 && strcmp(cmd->scale, INPUTS_NO) != 0 && strcmp(cmd->scale, INPUTS_CUSTOM) != 0) {
+        fprintf(stderr, "\nComputing coverage from BAM file\n");
+        MultiGenomeCoverage(cmd, CHROMhead);
+        ComputeSamplescales(cmd->bamfiles, CHROMhead, 1);
+        ScaleGenomeCoverage(cmd->bamfiles, CHROMhead);
+    }
+    
+    curr = cmd->bamfiles;
+
+    while (curr != NULL) {
+        fprintf(stderr, "\nSample: %s\n", curr->shortname);
+        fprintf(stderr, "\tTotal no. of reads: %d\n", curr->read_coverage);
+        fprintf(stderr, "\tLibrary size scale: %.2f\n", curr->scale);
+        fprintf(stderr, "\tTotal number of filtered reads: %d\n", curr->filtered_reads);
+        fprintf(stderr, "\tBases sequenced: %f\n", curr->base_coverage);
+        fprintf(stderr, "\tGenome size: %.f\n", CalculateGenomeSize(CHROMhead));
+        fprintf(stderr, "\tGenome scale: %f\n", curr->genome_scale);
+        
+        if(strcmp(cmd->scale, INPUTS_SMALLEST) == 0)
+            curr->genome_scale = curr->scale;
+        
+        curr = curr->next;
+    }
+
+    if(cmd->strandsplit == 0) {
+        fprintf(stderr, "\nCreating coverage track for: %s\n", cmd->bamfiles->shortname);
+        GetGenomeCoverageRNA(cmd, CHROMhead, returnRNAfilename(cmd));
+    }
+    else {
+        fprintf(stderr, "\nCreating positive coverage track for: %s\n", cmd->bamfiles->shortname);
+        cmd->strand = 1;
+        GetGenomeCoverageRNA(cmd, CHROMhead, returnRNAfilename(cmd));
+        
+        fprintf(stderr, "\nCreating negative coverage track for: %s\n", cmd->bamfiles->shortname);
+        cmd->strand = -1;
+        GetGenomeCoverageRNA(cmd, CHROMhead, returnRNAfilename(cmd));
+    }
+}
+
 void NormalizeBAMS(CMDINPUT *cmd) {
     BAMFILES *curr = NULL;
 
@@ -237,16 +315,17 @@ void NormalizeBAMS(CMDINPUT *cmd) {
 
     fprintf(stderr, "\nComputing coverage from the idx of BAM files\n");
     GetChromosomeCoveragesIDX(CHROMhead, cmd->bamfiles);
-    MultiGenomeCoverage(cmd, CHROMhead);
-    
-    if(cmd->strandsplit == 1) {
+    MultiGenomeBaseCoverage(cmd, CHROMhead);
+        
+    if(cmd->strandsplit == 1 && strcmp(cmd->scale, INPUTS_CUSTOM) != 0) {
         cmd->bamfiles->base_coverage = cmd->bamfiles->base_coverage + cmd->bamfiles->next->base_coverage;
         cmd->bamfiles->next->base_coverage = cmd->bamfiles->base_coverage;
     }
     
-    ScaleGenomeCoverage(cmd->bamfiles, CHROMhead);
+    if(strcmp(cmd->scale, INPUTS_CUSTOM) != 0)
+        ScaleGenomeCoverage(cmd->bamfiles, CHROMhead);
 
-    if (cmd->genome_coverage == 0) {
+    if (cmd->genome_coverage == 0 && strcmp(cmd->scale, INPUTS_CUSTOM) != 0) {
         GetGenomeCoveragesIDX(CHROMhead, cmd->bamfiles);
         ComputeSamplescales(cmd->bamfiles, CHROMhead, 1);
     }
@@ -344,7 +423,8 @@ int main(int argc, char **argv) {
 
             if (cmd != NULL) {
                 no_of_samples = cmd->no_of_samples;
-                ComputeCoverageChIPpeak(cmd);
+                
+                ComputeCoverageChIPpeak(cmd);                    
             }
         }
 
@@ -354,7 +434,12 @@ int main(int argc, char **argv) {
 
             if (cmd != NULL) {
                 no_of_samples = cmd->no_of_samples;
-                NormalizeBAMS(cmd);
+           
+                if(strcmp(cmd->operation, INPUTS_RSTRRNA) == 0 || strcmp(cmd->operation, INPUTS_RNA) == 0 || strcmp(cmd->operation, INPUTS_STRRNA) == 0)
+                    NormalizeBAMSrna(cmd);
+                
+                else
+                   NormalizeBAMS(cmd); 
             }
         }
 

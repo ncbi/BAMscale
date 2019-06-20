@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <htslib/sam.h>
 #include <pthread.h>
+#include <bigWig.h>
 
 #include "main.h"
 #include "Definitions.h"
@@ -32,22 +33,22 @@
 int ReadStrand(bam1_t *read, int paired_end) {
     if (paired_end == 0) {
         if (read->core.flag & (BAM_FREVERSE)) {
-            return -1;
-        } else
             return 1;
+        } else
+            return -1;
     } else {
         if (read->core.flag & (BAM_FREAD1)) {
             if (read->core.flag & (BAM_FREVERSE)) {
-                return -1;
-            } else
                 return 1;
+            } else
+                return -1;
         }
 
         if (read->core.flag & (BAM_FREAD2)) {
             if (read->core.flag & (BAM_FREVERSE)) {
-                return 1;
-            } else
                 return -1;
+            } else
+                return 11;
         }
     }
 
@@ -83,17 +84,20 @@ int DetectLibraryType(BAMFILES *bhead) {
  */
 int Read_filter(bam1_t *read, CMDINPUT *cmd) { //int paired_end, int rmDuplicate, int rmProper, int rmUnmappedPair) {
     if (cmd->libtype == 1) {
-        if (read->core.tid != read->core.mtid)
+        if (read->core.tid != read->core.mtid && cmd->filtDiffChr == 1)
             return 0;
-
-        if (abs((int) read->core.pos - (int) read->core.mpos) > cmd->max_insert_size || abs((int) read->core.pos - (int) read->core.mpos) < cmd->min_insert_size)
-            return 0;
-
+        
+        if(cmd->filtInsSize == 1) {
+            if (abs((int) read->core.pos - (int) read->core.mpos) > cmd->max_insert_size || abs((int) read->core.pos - (int) read->core.mpos) < cmd->min_insert_size)
+               return 0;
+            }
+        
         if (cmd->nounproper == 1 && !(read->core.flag & (BAM_FPROPER_PAIR)))
             return 0;
-
+        
         if (cmd->remove_unmapped_pair == 1 && read->core.flag & (BAM_FUNMAP))
             return 0;
+        
     }
 
     if ((int) read->core.qual < cmd->mapq)
@@ -541,7 +545,7 @@ int *CalculateCoverage(samFile *fp_in, hts_itr_t *iter, bam1_t *aln, int chrsize
                     
                     if(endpos > pos) {
                         for(j = pos; j < endpos; j++) {
-                            if(j < fragend && j < chrsize)
+                            if(j < fragend && j < chrsize && j >= 0)
                                 chr_cov[j]++;
                         }
                         
@@ -575,6 +579,170 @@ int *CalculateCoverage(samFile *fp_in, hts_itr_t *iter, bam1_t *aln, int chrsize
     return chr_cov;
 }
 
+
+void GetGenomeCoverageRNA(CMDINPUT *cmd, CHROMOSOMES *head, char *outfile) {
+    char *filename = cmd->bamfiles->name;
+
+    samFile *fp_in = hts_open(filename, "r"); //open bam file
+    bam_hdr_t *hdr = sam_hdr_read(fp_in); //read header
+    bam1_t *aln = bam_init1(); //initialize an alignment
+    hts_idx_t *idx = sam_index_load(fp_in, filename);
+    CHROMOSOMES *curr = head;
+    bigWigFile_t *fp = NULL;
+    int no_of_chrs = CountNumberOfChromosomes(cmd->chr);
+    float *average = (float *)calloc(1, sizeof(float));
+    
+    char **chrnames = GetChromosomeNames(cmd->chr, no_of_chrs);
+    uint32_t *chrlens = GetChrLens(cmd->chr, no_of_chrs);
+    int invert = 0;
+    uint32_t start = 0;
+    
+    if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_RSTRRNA) == 0)
+        invert = 1;
+    
+    fp = bwOpen(outfile, NULL, "w");
+    bwCreateHdr(fp, 7);
+    fp->cl = bwCreateChromList(chrnames, chrlens, no_of_chrs);
+    bwWriteHdr(fp);
+    
+    while (curr != NULL) {
+        if (curr->blacklist == 0) {
+            if (curr->length > 10000000)
+                fprintf(stderr, "\t\tProcessing: %s\n",curr->name);
+
+            hts_itr_t *iter = bam_itr_querys(idx, hdr, curr->name);
+            
+            int *coverage = CalculateCoverage(fp_in, iter, aln, curr->length, curr->name, cmd, cmd->bamfiles);
+            int *binres = (int *) calloc(curr->length+1, sizeof (int));
+            int currbin = 0;
+            int binsize = cmd->binSize;
+            int maxdiff = 5;
+                        
+            for(int i = 0; i < curr->length - 1; i++) {
+                currbin = i / binsize;
+                
+                if(abs(coverage[i] - coverage[i+1]) > maxdiff) {
+                    //if(coverage[i] < 10 || coverage[i+1] < 10) {
+                        if(currbin == (i+1) / binsize) {
+                            int end = currbin*cmd->binSize+cmd->binSize;
+                            
+                            if(end > curr->length)
+                                end = curr->length;
+                            
+                            for(int j = currbin*cmd->binSize; j < end; j++) {
+                                //printf("%d\t%d\n", j, curr->length);
+                                binres[j] = 1;
+                            }
+                        }
+                    //}
+                }
+            }
+                       
+            int prev_type = 0;
+            start = 0;
+            
+            for(int i = 0; i < curr->numberOfBins-1; i++) {
+                start = (uint32_t) (i * cmd->binSize);
+                
+                if(binres[i*cmd->binSize] == 0) {
+                    average[0] = 0;
+                    
+                    int end = (i+1) * cmd->binSize;
+                            
+                    if(end > curr->length)
+                        end = curr->length;
+                    
+                    for(int j = i*cmd->binSize; j < end; j++)
+                        average[0] += (float)coverage[j];
+
+                    if(average[0] > 0)
+                        average[0] = average[0] / (float) cmd->binSize;
+
+                    average[0] = average[0] * cmd->bamfiles->genome_scale;
+                    
+                    if(cmd->strand == -1 && invert == 1 && average[0] > 0)
+                        average[0] = -average[0];
+
+                    if(i == 0) {
+                        bwAddIntervalSpanSteps(fp, curr->name, start, cmd->binSize, cmd->binSize, &average[0], (uint32_t) 1);
+                    }
+                    
+                    else {
+                        if(prev_type != 0) {
+                            start = (uint32_t) (i*cmd->binSize);
+                            bwAddIntervalSpanSteps(fp, curr->name, start, cmd->binSize, cmd->binSize, &average[0], (uint32_t) 1);
+                        }
+                        
+                        else {
+                            bwAppendIntervalSpanSteps(fp, &average[0], (uint32_t) 1);
+                        }
+                    }
+                    
+                    prev_type = 0;
+                }
+                
+                else {
+                    int j = 0;
+                    
+                    if(prev_type == 0) {
+                        j = 1;
+                        
+                        average[0] = (float)coverage[i*cmd->binSize];
+                        average[0] = average[0] * cmd->bamfiles->genome_scale;
+                        
+                        if(cmd->strand == -1 && invert == 1 && average[0] > 0)
+                            average[0] = -average[0];
+                        
+                        bwAddIntervalSpanSteps(fp, curr->name, start, 1, 1, &average[0], (uint32_t) 1);
+                    }
+                    
+                    int end = (i + 1)*cmd->binSize;
+                            
+                    if(end > curr->length)
+                        end = curr->length;
+                    
+                    for(j = j + i*cmd->binSize; j < end; j++) {
+                        average[0] = (float)coverage[j];
+                        average[0] = average[0] * cmd->bamfiles->genome_scale;
+                        
+                        if(cmd->strand == -1 && invert == 1 && average[0] > 0)
+                            average[0] = -average[0];
+                        
+                        bwAppendIntervalSpanSteps(fp, &average[0], (uint32_t) 1);
+                    }
+                    
+                    prev_type = 1;
+                }
+            }
+            
+            hts_itr_destroy(iter);
+            free(coverage);
+            free(binres);
+        }
+        curr = curr->next;
+    }
+    
+    bwClose(fp);
+    bwCleanup();
+    bam_destroy1(aln);
+    bam_hdr_destroy(hdr);
+    hts_idx_destroy(idx);
+    sam_close(fp_in);
+    free(chrlens);
+    free(average);
+    
+    for(int i = 0; i <= no_of_chrs; i++) {
+        if(chrnames[i])
+            free(chrnames[i]);
+    }
+
+    if(chrnames)
+        free(chrnames);
+
+    if(outfile)
+        free(outfile);
+}
+
 void *GetGenomeCoveragemultithread(void * voidA) {
     THREADS *ptr = (THREADS *) voidA;
     char *filename = ptr->sample;
@@ -593,11 +761,6 @@ void *GetGenomeCoveragemultithread(void * voidA) {
             hts_itr_t *iter = bam_itr_querys(idx, hdr, curr->name);
             
             int *coverage = CalculateCoverage(fp_in, iter, aln, curr->length, curr->name, ptr->cmd, ptr->bamfile);
-
-            if (curr->coverages[ptr->sample_id])
-                free(curr->coverages[ptr->sample_id]);
-            
-            curr->coverages[ptr->sample_id] = BinCoverage(coverage, curr->length, ptr->cmd->binSize, curr->numberOfBins);
 
             hts_itr_destroy(iter);
             free(coverage);
@@ -669,6 +832,100 @@ void MultiGenomeCoverage(CMDINPUT *cmd, CHROMOSOMES *chr) {
     DestroyThreadStruct(&threadStruct, cmd->threads);
 }
 
+void *GetGenomeBaseCoveragemultithread(void * voidA) {
+    THREADS *ptr = (THREADS *) voidA;
+    char *filename = ptr->sample;
+    CHROMOSOMES *curr = ptr->chr;
+
+    samFile *fp_in = hts_open(filename, "r"); //open bam file
+    bam_hdr_t *hdr = sam_hdr_read(fp_in); //read header
+    bam1_t *aln = bam_init1(); //initialize an alignment
+    hts_idx_t *idx = sam_index_load(fp_in, filename);
+
+    while (curr != NULL) {
+        if (curr->tid == ptr->pid && curr->blacklist == 0) {
+            if (curr->length > 10000000)
+                fprintf(stderr, "\t\tThread [ %d ] is processing: %s\n", ptr->pid + 1, curr->name);
+
+            hts_itr_t *iter = bam_itr_querys(idx, hdr, curr->name);
+            
+            int *coverage = CalculateCoverage(fp_in, iter, aln, curr->length, curr->name, ptr->cmd, ptr->bamfile);
+
+            if (curr->coverages[ptr->sample_id])
+                free(curr->coverages[ptr->sample_id]);
+            
+            curr->coverages[ptr->sample_id] = BinCoverage(coverage, curr->length, ptr->cmd->binSize, curr->numberOfBins);
+
+            hts_itr_destroy(iter);
+            free(coverage);
+
+        }
+        curr = curr->next;
+    }
+
+    bam_destroy1(aln);
+    bam_hdr_destroy(hdr);
+    hts_idx_destroy(idx);
+    sam_close(fp_in);
+
+    return NULL;
+}
+
+void MultiGenomeBaseCoverage(CMDINPUT *cmd, CHROMOSOMES *chr) {
+    BAMFILES *bamcurr = cmd->bamfiles;
+    pthread_t thread_id[cmd->threads];
+    int i = 0;
+
+    fprintf(stderr, "\nImporting sequencing coverages\n");
+    THREADS *threadStruct = (THREADS *) malloc(cmd->threads * sizeof (THREADS));
+    for (i = 0; i < cmd->threads; i++) {
+        threadStruct[i].pid = -1;
+        threadStruct[i].chrname = NULL;
+        threadStruct[i].sample = NULL;
+        threadStruct[i].sample_id = -1;
+        threadStruct[i].paired_end = 0;
+        threadStruct[i].scale = 1.00;
+        threadStruct[i].binSize = 0;
+        threadStruct[i].pseudocount = 1;
+        threadStruct[i].strand = 0;
+        threadStruct[i].chr = chr;
+        threadStruct[i].phead = NULL;
+        threadStruct[i].cmd = cmd;
+        threadStruct[i].bamfile = NULL;
+        threadStruct[i].next = NULL;
+    }
+
+    while (bamcurr != NULL) {
+        printf("\t[ %d / %d ] %s\n", bamcurr->id, cmd->no_of_samples - 1, bamcurr->shortname);
+
+        for (i = 0; i < cmd->threads; i++) {
+            threadStruct[i].pid = i;
+            if (threadStruct[i].chrname)
+                free(threadStruct[i].chrname);
+            
+            threadStruct[i].chrname = NULL;
+            threadStruct[i].sample = bamcurr->name;
+            threadStruct[i].sample_id = bamcurr->id;
+            threadStruct[i].bamfile = bamcurr;
+        }
+
+        for (i = 0; i < cmd->threads; i++) {
+            pthread_create(&thread_id[i], NULL, &GetGenomeBaseCoveragemultithread, (void *) &(threadStruct[i]));
+        }
+
+        for (i = 0; i < cmd->threads; i++) {
+            pthread_join(thread_id[i], NULL);
+        }
+
+        bamcurr = bamcurr->next;
+        
+        if(cmd->strandsplit)
+            cmd->strand = -1;
+    }
+    
+    DestroyThreadStruct(&threadStruct, cmd->threads);
+}
+
 void *ScaleBinsmultithread(void * voidA) {
     THREADS *ptr = (THREADS *) voidA;
     CHROMOSOMES *curr = ptr->chr;
@@ -680,8 +937,6 @@ void *ScaleBinsmultithread(void * voidA) {
 
         curr = curr->next;
     }
-
-
 
     return NULL;
 }

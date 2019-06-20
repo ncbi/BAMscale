@@ -59,12 +59,43 @@ CMDINPUT *CreateCMDinput(void) {
     ptr->argc = 0;
     ptr->genome_coverage = 1;
     ptr->strandsplit = 0;
+    ptr->custom_scale = NULL;
+    
+    ptr->filtDiffChr = 1;
+    ptr->filtInsSize = 0;
 
     ptr->normtype = strdup(INPUTS_BASE);
     ptr->scale = strdup(INPUTS_GENOME);
     ptr->operation = strdup(INPUTS_SCALED);
 
     return ptr;
+}
+
+int ParseCustomScaling(CMDINPUT *cmd, char *scales) {
+    char *ptr;
+    BAMFILES *curr = cmd->bamfiles;
+    
+    ptr = strtok(scales, ",");
+    
+    while(ptr != NULL) {
+        if(curr != NULL) {
+            curr->scale = atof(ptr);
+            curr->genome_scale = curr->scale;
+            curr = curr->next;
+        }
+        
+        else {
+           return -1; 
+        }
+        
+        ptr = strtok(NULL, "\t");
+    }
+    
+    if(curr != NULL) {
+        return 1;
+    }
+    
+    return 0;
 }
 
 void DestroyCMDinput(CMDINPUT *ptr) {
@@ -121,6 +152,12 @@ void PrintScaleMessage(char *pname) {
     fprintf(stderr, "\n\t--scale|-k <str>\tMethod to scale samples together. (default: %s)\n", cmd->scale);
     fprintf(stderr, "\t\t\t\tOptions are: \n\t\t\t\t  1) no: no scaling, just calculate coverage\n\t\t\t\t  2) smallest: scale reads to smallest library (multiple-samples only)\n");
     fprintf(stderr, "\t\t\t\t  3) genome: scale samples to 1x genome coverage (only possible with 'base' normalization type)\n\n");
+    fprintf(stderr, "\t\t\t\t  4) custom: scale to custom scaling factor (--factor or -F <float> has to be supplied)\n\n");
+    
+    fprintf(stderr, "\n\t--factor|-F <float>\tScaling factor(s) when \"--scale custom\" normalization is selected.\n");
+    fprintf(stderr, "\t\t\t\t  If multiple samples are specified, scaling factors should be comma (\",\") delimited.\n");
+    fprintf(stderr, "\t\t\t\t  example in case of three input BAM files: 0.643,0.45667,1.3.\n");
+    
     fprintf(stderr, "\n\t--operation|-r <str>\tOperation to perform when scaling samples. Default: %s\n", cmd->operation);
     fprintf(stderr, "\t\t\t\tOptions are: \n\t\t\t\t  1) scaled: output scaled tracks.\n\t\t\t\t  2) unscaled: do not scale files in any way.\n\t\t\t\t  2) log2: log2 transform against first BAM file.\n");
     fprintf(stderr, "\t\t\t\t  3) ratio: coverage ratio against first BAM file.\n\t\t\t\t  4) subtract: subtract coverage against first BAM file.\n");
@@ -163,7 +200,8 @@ void PrintScaleMessage(char *pname) {
     fprintf(stderr, "\t--unmappair|-m <flag>\tDo not remove reads with unmapped pairs\n");
     fprintf(stderr, "\t--minfrag|-g <int>\tMinimum fragment size for read pairs (default: %d)\n", cmd->min_insert_size);
     fprintf(stderr, "\t--maxfrag|-x <int>\tMaximum fragment size for read pairs (default: %d)\n", cmd->max_insert_size);
-    fprintf(stderr, "\t--fragfilt|-w <int>\tFilter reads based on fragment size (default: no)\n");
+    fprintf(stderr, "\t--fragfilt|-w <flag>\tFilter reads based on fragment size (default: no)\n");
+    fprintf(stderr, "\t--diffchr|-W <flag>\tKeep reads where read pair aligns to different chromosome (default: no)\n");
 
     fprintf(stderr, "\nOutput options:\n");
     fprintf(stderr, "\t--outdir|-o <str>\tOutput directory name (default: \'.\')\n");
@@ -196,6 +234,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
             {"fragsize", required_argument, 0, 'a'},
             {"normtype", required_argument, 0, 'y'},
             {"scale", required_argument, 0, 'k'},
+            {"factor", required_argument, 0, 'F'},
             {"binsize", required_argument, 0, 'z'},
             {"seqcov", required_argument, 0, 'e'},
             {"blacklist", required_argument, 0, 'c'},
@@ -209,17 +248,18 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
             {"unmappair", no_argument, 0, 'm'},
             {"minfrag", required_argument, 0, 'g'},
             {"maxfrag", required_argument, 0, 'x'},
-            {"fragfilt", required_argument, 0, 'w'},
+            {"fragfilt", no_argument, 0, 'w'},
             {"outdir", required_argument, 0, 'o'},
             {"prefix", required_argument, 0, 'n'},
             {"threads", required_argument, 0, 't'},
             {"strandsplit", no_argument, 0, 'S'},
+            {"diffchr", no_argument, 0, 'W'},
             {0, 0, 0, 0}
         };
         /* getopt_long stores the option index here. */
         int option_index = 0;
 
-        c = getopt_long(argc, argv, "i:l:fa:y:k:z:e:c:u:r:j:b:q:dpmg:x:w:o:n:t:S", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:l:fa:F:y:k:z:e:c:u:r:j:b:q:dpmg:x:wo:n:t:SW", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -315,12 +355,25 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
                     cmd->scale = strdup(INPUTS_SMALLEST);
                 } else if (strcmp(tmpstr, INPUTS_GENOME) == 0) {
                     cmd->scale = strdup(INPUTS_GENOME);
+                } else if (strcmp(tmpstr, INPUTS_CUSTOM) == 0) {
+                    cmd->scale = strdup(INPUTS_CUSTOM);
                 } else {
                     fprintf(stderr, "ERROR: invalid scaling type specified ( %s )\n", tmpstr);
                     error++;
                 }
                 break;
 
+            case 'F':
+                if(cmd->custom_scale == NULL)
+                    cmd->custom_scale = strdup(tmpstr);
+                
+                else {
+                   fprintf(stderr, "ERROR: custom scaling factor already specified ( %s )\n", cmd->custom_scale);
+                   error++;
+                }
+                
+                break;
+                
             case 'z':
                 cmd->binSize = atoi(tmpstr);
                 cmd->binSizeChange = 1;
@@ -390,7 +443,15 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
                     cmd->strandsplit = 1;
                 } else if(strcmp(tmpstr, INPUTS_REP) == 0) {                    
                     cmd->operation = strdup(INPUTS_REP);
-                } else {
+                } else if(strcmp(tmpstr, INPUTS_RSTRRNA) == 0) {                    
+                    cmd->operation = strdup(INPUTS_RSTRRNA);
+                    cmd->strandsplit = 1;
+                } else if(strcmp(tmpstr, INPUTS_RNA) == 0) {                    
+                    cmd->operation = strdup(INPUTS_RNA);
+                }else if(strcmp(tmpstr, INPUTS_STRRNA) == 0) {                    
+                    cmd->operation = strdup(INPUTS_STRRNA);
+                    cmd->strandsplit = 1;
+                }else {
                     fprintf(stderr, "ERROR: invalid operation type specified ( %s )\n", tmpstr);
                     error++;
                 }
@@ -441,6 +502,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
 
             case 'w':
                 cmd->fragment_size_filter = 1;
+                cmd->filtInsSize = 1;
 
                 break;
 
@@ -483,6 +545,10 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
             case 'S':
                 cmd->strandsplit = 1;
                 break;
+                
+            case 'W':
+                cmd->filtDiffChr = 0;
+                break;
 
             case '?':
                 /* getopt_long already printed an error message. */
@@ -501,6 +567,25 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
         return NULL;
     }
     
+    if(strcmp(cmd->scale, INPUTS_CUSTOM) == 0) {
+        if(cmd->custom_scale == NULL) {
+            fprintf(stderr, "ERROR: Custom scaling was specified, but no factors were specified (-F <FLOAT>).\n");
+            error++;
+        }
+        
+        int custom_scale_return = ParseCustomScaling(cmd, cmd->custom_scale);
+        
+        if(custom_scale_return == 1) {
+            fprintf(stderr, "ERROR: There are fewer specified scaling factors than BAM files.\n");
+            error++;
+        }
+        
+        if(custom_scale_return == -1) {
+            fprintf(stderr, "ERROR: More scaling factors were specified than BAM files.\n");
+            error++;
+        }
+    } 
+    
     curr = cmd->bamfiles;
 
     if (curr == NULL) {
@@ -510,22 +595,36 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
     
     else {
         if(cmd->strandsplit == 1) {
-            if(curr->next) {
-               fprintf(stderr, "ERROR: Only one BAM file can be specified for strand-splitting mode\n");
-               error++;
+            if(strcmp(cmd->operation, INPUTS_RSTRRNA) == 0 || strcmp(cmd->operation, INPUTS_RNA) == 0 || strcmp(cmd->operation, INPUTS_STRRNA) == 0) {
+                if(curr->next) {
+                    fprintf(stderr, "ERROR: Only one BAM file can be specified in RNA-seq mode!\n");
+                    error++;
+                }
             }
             
             else {
-                cmd->bamfiles = AddBAMstruct(curr->name, cmd->bamfiles);
-                cmd->no_of_samples++;
+                if(curr->next) {
+                   fprintf(stderr, "ERROR: Only one BAM file can be specified for strand-splitting mode\n");
+                   error++;
+                }
+
+                else {
+                    cmd->bamfiles = AddBAMstruct(curr->name, cmd->bamfiles);
+                    cmd->bamfiles->next->scale = cmd->bamfiles->scale;
+                    cmd->bamfiles->next->genome_scale = cmd->bamfiles->scale;
+                    cmd->no_of_samples++;
+                }
+
+                cmd->strand = 1;
             }
-            
-            cmd->strand = 1;
         }
+        
+        
     }
 
     if (strcmp(cmd->normtype, INPUTS_READS) == 0) {
         if (strcmp(cmd->scale, INPUTS_GENOME) == 0) {
+            
             fprintf(stderr, "ERROR: Invalid selection of scaling \'%s\' with normalization \'%s\'.\n", cmd->scale, cmd->normtype);
             fprintf(stderr, "\t'reads' normalization can be paired with \'no\' scaling or \'smallest\' scaling\n");
             error++;
@@ -533,9 +632,11 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
     }
 
     if (strcmp(cmd->scale, INPUTS_NO) == 0 && strcmp(cmd->operation, INPUTS_UNSCALED) != 0) {
-        fprintf(stderr, "ERROR: Scaling was turned off, but operation is not set to \'unscaled\'.\n");
-        fprintf(stderr, "\tEither scale samples, or change operation to \'unscaled\'\n");
-        error++;
+        if(strcmp(cmd->operation, INPUTS_RSTRRNA) != 0 && strcmp(cmd->operation, INPUTS_RNA) != 0 && strcmp(cmd->operation, INPUTS_STRRNA) != 0) {
+            fprintf(stderr, "ERROR: Scaling was turned off, but operation is not set to \'unscaled\'.\n");
+            fprintf(stderr, "\tEither scale samples, or change operation to \'unscaled\'\n");
+            error++;
+        }
     }
 
     if (strcmp(cmd->scale, INPUTS_SMALLEST) == 0 && cmd->no_of_samples <= 1) {
@@ -599,7 +700,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
         if(cmd->smoothBinChange == 0)
             cmd->smoothBin = 500;
     }
-
+    
     fprintf(stderr, "Computing coverage of regions\n");
     fprintf(stderr, "\tBAMS:\n");
 
@@ -609,7 +710,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
         fprintf(stderr, "\t\t%s\n", curr->name);
         curr = curr->next;
     }
-
+    
     fprintf(stderr, "\n\tMin. mapping qual: %d\n", cmd->mapq);
     fprintf(stderr, "\tRemove duplicates: %d\n", cmd->removeduplicates);
     fprintf(stderr, "\tOnly proper pairs: %d\n", cmd->nounproper);
@@ -633,6 +734,15 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
             fprintf(stderr, "\tFragment size for single-end: %d\n", cmd->fragment_size);
     }
 
+    if(strcmp(cmd->operation, INPUTS_RSTRRNA) == 0)
+        fprintf(stderr, "\tRunning RNA-seq mode: stranded coverages (negative values for reverse strand)\n");
+    
+    if(strcmp(cmd->operation, INPUTS_RNA) == 0)
+        fprintf(stderr, "\tRunning RNA-seq mode: standard RNA-seq coverage\n");
+    
+    if(strcmp(cmd->operation, INPUTS_STRRNA) == 0)
+        fprintf(stderr, "\tRunning RNA-seq mode: stranded coverages (both tracks with positive values)\n");
+    
     fprintf(stderr, "\tNo. of threads: %d\n", cmd->threads);
 
     if (cmd->outdir != NULL)
@@ -695,8 +805,9 @@ void PrintMultiCovMessage(char *pname) {
     fprintf(stderr, "\t--unmappair|-m <flag>\tDo not remove reads with unmapped pairs\n");
     fprintf(stderr, "\t--minfrag|-g <int>\tMinimum fragment size for read pairs (default: %d)\n", cmd->min_insert_size);
     fprintf(stderr, "\t--maxfrag|-x <int>\tMaximum fragment size for read pairs (default: %d)\n", cmd->max_insert_size);
-    fprintf(stderr, "\t--fragfilt|-w <int>\tFilter reads based on fragment size (default: no)\n");
-
+    fprintf(stderr, "\t--fragfilt|-w <flag>\tFilter reads based on fragment size (default: no)\n");
+    fprintf(stderr, "\t--diffchr|-W <flag>\tKeep reads where read pair aligns to different chromosome (default: no)\n");
+    
     fprintf(stderr, "\nOutput options:\n");
     fprintf(stderr, "\t--outdir|-o <str>\tOutput directory name (default: \'.\')\n");
     fprintf(stderr, "\t--prefix|-n <str>\tOutput prefix for file names (default: none)\n");
@@ -743,13 +854,14 @@ CMDINPUT *MultiCovParser(int argc, char **argv) {
             {"unmappair", no_argument, 0, 'm'},
             {"minfrag", required_argument, 0, 'g'},
             {"maxfrag", required_argument, 0, 'x'},
-            {"fragfilt", required_argument, 0, 'w'},
+            {"fragfilt", no_argument, 0, 'w'},
+            {"diffchr", no_argument, 0, 'W'},
             {0, 0, 0, 0}
         };
         /* getopt_long stores the option index here. */
         int option_index = 0;
         
-        c = getopt_long(argc, argv, "rsfpdq:l:i:b:t:a:o:n:c:u:mg:x:we:", long_options, &option_index);
+        c = getopt_long(argc, argv, "rsfpdq:l:i:b:t:a:o:n:c:u:mg:x:we:W", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -938,6 +1050,10 @@ CMDINPUT *MultiCovParser(int argc, char **argv) {
                     error++;
                 }
                 break;
+                
+            case 'W':
+                cmd->filtDiffChr = 0;
+                break;
 
             case '?':
                 error++;
@@ -1014,6 +1130,7 @@ CMDINPUT *MultiCovParser(int argc, char **argv) {
     fprintf(stderr, "\tOnly proper pairs: %d\n", cmd->nounproper);
     fprintf(stderr, "\tStrandness: %d\n", cmd->strand);
     fprintf(stderr, "\tLibrary type: %s\n", libstr ? libstr : INPUTS_AUTO);
+    
     fprintf(stderr, "\tFilter based on fragment size: %d\n", cmd->fragment_size_filter);
     if (strcmp(libstr ? libstr : INPUTS_AUTO, INPUTS_AUTO) == 0 && cmd->fragment_size_filter == 1) {
         fprintf(stderr, "\t\t(These will be the fragment size limits in case of paired end)\n");

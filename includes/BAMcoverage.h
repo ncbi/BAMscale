@@ -35,8 +35,11 @@ extern "C" {
     char *BEDentryChr(char *input);
     void SubtractBlacklistedBEDS(char *filename, CHROMOSOMES *head, BAMFILES *bhead, int paired_end);
     int *CalculateCoverage(samFile *fp_in, hts_itr_t *iter, bam1_t *aln, int chrsize, char *chrname, CMDINPUT *cmd, BAMFILES *bamcurr);
+    void GetGenomeCoverageRNA(CMDINPUT *cmd, CHROMOSOMES *head, char *outfile);
     void *GetGenomeCoveragemultithread(void * voidA);
     void MultiGenomeCoverage(CMDINPUT *cmd, CHROMOSOMES *chr);
+    void *GetGenomeBaseCoveragemultithread(void * voidA);
+    void MultiGenomeBaseCoverage(CMDINPUT *cmd, CHROMOSOMES *chr);
     void *ScaleBinsmultithread(void * voidA);
     void MultiGenomeScaler(CMDINPUT *cmd, CHROMOSOMES *chr);
     void *SmoothBinsmultithread(void * voidA);

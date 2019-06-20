@@ -20,12 +20,16 @@
 #define INPUTS_BASE "base"
 #define INPUTS_GENOME "genome"
 #define INPUTS_SCALED "scaled"
+#define INPUTS_CUSTOM "custom"
 #define INPUTS_SCALE "scale"
 #define INPUTS_UNSCALED "unscaled"
 #define INPUTS_LOG2 "log2"
 #define INPUTS_RFD "rfd"
 #define INPUTS_END "endseq"
 #define INPUTS_ENDR "endseqr"
+#define INPUTS_RNA "rna"
+#define INPUTS_STRRNA "strandrna"
+#define INPUTS_RSTRRNA "strandrnaR"
 #define INPUTS_REP "reptime"
 #define INPUTS_RATIO "ratio"
 #define INPUTS_SUBSTRACT "subtract"
@@ -41,6 +45,7 @@
 extern "C" {
 #endif
     CMDINPUT *CreateCMDinput(void);
+    int ParseCustomScaling(CMDINPUT *cmd, char *scales);
     void PrintScaleMessage(char *pname);
     CMDINPUT *ScaleParser(int argc, char **argv);
     void PrintMultiCovMessage(char *pname);

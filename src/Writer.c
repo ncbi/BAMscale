@@ -28,6 +28,48 @@
 #include "binning.h"
 #include "Inputs.h"
 
+char *returnRNAfilename(CMDINPUT *cmd) {
+    int fnamelen = 0;
+    char *outfile = NULL;
+    
+    if (cmd->outdir != NULL)
+        fnamelen += strlen(cmd->outdir);
+
+    fnamelen += strlen(cmd->bamfiles->shortname);
+
+    if(cmd->strandsplit == 1)
+        fnamelen += strlen(".positive");
+
+    fnamelen += 50;
+
+    outfile = (char *) calloc((fnamelen*2 + 1), sizeof (char));
+
+    if (cmd->outdir != NULL)
+        strcpy(outfile, cmd->outdir);
+
+    else
+        strcpy(outfile, "./");
+
+    strcat(outfile, "/");
+
+    strcat(outfile, cmd->bamfiles->shortname);
+        
+    if(cmd->strandsplit == 1) {
+        if(cmd->strand == 1)
+            strcat(outfile, ".positive");
+            
+        if(cmd->strand == -1)
+            strcat(outfile, ".negative");
+    }
+    
+    strcat(outfile, ".");
+    strcat(outfile, cmd->operation);
+    
+    strcat(outfile, ".bw");
+    
+    return outfile;
+}
+
 void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
     char **chrnames = NULL;
     uint32_t *chrlens = NULL;
