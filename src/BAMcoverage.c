@@ -48,7 +48,7 @@ int ReadStrand(bam1_t *read, int paired_end) {
             if (read->core.flag & (BAM_FREVERSE)) {
                 return -1;
             } else
-                return 11;
+                return 1;
         }
     }
 
@@ -920,7 +920,7 @@ void MultiGenomeBaseCoverage(CMDINPUT *cmd, CHROMOSOMES *chr) {
         bamcurr = bamcurr->next;
         
         if(cmd->strandsplit)
-            cmd->strand = -1;
+            cmd->strand = 1;
     }
     
     DestroyThreadStruct(&threadStruct, cmd->threads);

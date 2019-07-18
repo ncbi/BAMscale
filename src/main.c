@@ -318,8 +318,10 @@ void NormalizeBAMS(CMDINPUT *cmd) {
     MultiGenomeBaseCoverage(cmd, CHROMhead);
         
     if(cmd->strandsplit == 1 && strcmp(cmd->scale, INPUTS_CUSTOM) != 0) {
-        cmd->bamfiles->base_coverage = cmd->bamfiles->base_coverage + cmd->bamfiles->next->base_coverage;
-        cmd->bamfiles->next->base_coverage = cmd->bamfiles->base_coverage;
+        if(strcmp(cmd->operation, INPUTS_RSTRRNA) == 0 || strcmp(cmd->operation, INPUTS_STRRNA) == 0) {
+            cmd->bamfiles->base_coverage = cmd->bamfiles->base_coverage + cmd->bamfiles->next->base_coverage;
+            cmd->bamfiles->next->base_coverage = cmd->bamfiles->base_coverage;
+        }
     }
     
     if(strcmp(cmd->scale, INPUTS_CUSTOM) != 0)
@@ -363,14 +365,14 @@ void NormalizeBAMS(CMDINPUT *cmd) {
 
     curr = cmd->bamfiles;
     if(cmd->strandsplit == 1)
-        cmd->strand = 1;
+        cmd->strand = -1;
     
     while (curr != NULL) {
         PrintScaledBigWig(cmd, curr, NULL);
         curr = curr->next;
         
         if(cmd->strandsplit == 1)
-            cmd->strand = -1;
+            cmd->strand = 1;
     }
 
     if (strcmp(cmd->operation, "scaled") != 0 && strcmp(cmd->operation, "unscaled") != 0) {

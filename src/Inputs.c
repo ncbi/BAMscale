@@ -134,7 +134,7 @@ void PrintScaleMessage(char *pname) {
     ptr = ptr ? ptr + 1 : (char *) pname;
 
     fprintf(stderr, "\nScale one or multiple BAM files\n");
-    fprintf(stderr, "Version: %s\n", "v1.0");
+    fprintf(stderr, "Version: %s\n", "v0.0.5");
     fprintf(stderr, "\nUsage: %s scale [OPTIONS] --bam <BAM_1> (--bam <BAM_2> ... --bam <BAM_N>)\n", ptr);
     fprintf(stderr, "\nOutput: Coverage tracks in BigWig format (un-scaled, scaled, genome scaled)\n");
     fprintf(stderr, "\nRequired options:\n");
@@ -159,12 +159,19 @@ void PrintScaleMessage(char *pname) {
     fprintf(stderr, "\t\t\t\t  example in case of three input BAM files: 0.643,0.45667,1.3.\n");
     
     fprintf(stderr, "\n\t--operation|-r <str>\tOperation to perform when scaling samples. Default: %s\n", cmd->operation);
-    fprintf(stderr, "\t\t\t\tOptions are: \n\t\t\t\t  1) scaled: output scaled tracks.\n\t\t\t\t  2) unscaled: do not scale files in any way.\n\t\t\t\t  2) log2: log2 transform against first BAM file.\n");
-    fprintf(stderr, "\t\t\t\t  3) ratio: coverage ratio against first BAM file.\n\t\t\t\t  4) subtract: subtract coverage against first BAM file.\n");
+    fprintf(stderr, "\t\t\t\tOptions are: \n");
+    fprintf(stderr, "\t\t\t\t  1) scaled: output scaled tracks\n");
+    fprintf(stderr, "\t\t\t\t  2) unscaled: do not scale files in any way\n");
+    fprintf(stderr, "\t\t\t\t  3) log2: log2 transform against first BAM file\n");
+    fprintf(stderr, "\t\t\t\t  4) ratio: coverage ratio against first BAM file.\n\t\t\t\t  5) subtract: subtract coverage against first BAM file.\n");
     fprintf(stderr, "\t\t\t\t  5) rfd: OK-seq RFD calculation\n");
     fprintf(stderr, "\t\t\t\t  6) endseq: strand-specific coverages\n");
-    fprintf(stderr, "\t\t\t\t  6) endseqr: strand-specific coverages (reverse strand score is negative)\n");
-    fprintf(stderr, "\t\t\t\t  7) reptime: replication timing mode for two BAM files (binsize: 100bp, smoothen: 500 bins)\n");
+    fprintf(stderr, "\t\t\t\t  7) endseqr: strand-specific coverages (reverse strand score is negative)\n");
+    fprintf(stderr, "\t\t\t\t  8) reptime: replication timing mode for two BAM files (binsize: 100bp, smoothen: 500 bins)\n");
+    fprintf(stderr, "\t\t\t\t  9) rna: coverage of RNA-seq file (one file at a time)\n");
+    fprintf(stderr, "\t\t\t\t  10) strandrna: stranded coverage of RNA-seq file (one file at a time)\n");
+    fprintf(stderr, "\t\t\t\t  11) strandrnaR: stranded coverage of RNA-seq file (reverse is negative, one file at a time)\n");
+    
     fprintf(stderr, "\n\t\t\t\tShort description of settings:\n");
     fprintf(stderr, "\t\t\t\tendseq: generates scaled coverage tracks of positive/negative strands,\n");
     fprintf(stderr, "\t\t\t\t\tand the log2 ratios\n");
@@ -172,7 +179,12 @@ void PrintScaleMessage(char *pname) {
     fprintf(stderr, "\t\t\t\t\tthe negative strand coverage will be negative, and the log2 ratios are calculated\n");
     fprintf(stderr, "\n\t\t\t\treptime: generates scaled coverage tracks and log2 ratios of two BAM files,\n");
     fprintf(stderr, "\t\t\t\t\tsetting the binsize to 100bp and smoothening smoothen to 500 bins\n");
-
+    fprintf(stderr, "\n\t\t\t\trna: coverage of RNA-seq, useful for accurate coverages at exon-intron boundaries\n");
+    fprintf(stderr, "\n\t\t\t\tstrandrna: stranded coverage of RNA-seq, useful for accurate coverages at exon-intron boundaries,\n");
+    fprintf(stderr, "\t\t\t\t\tcreating separate tracks for forward and reverse strand\n");
+    fprintf(stderr, "\n\t\t\t\tstrandrnaR: stranded coverage of RNA-seq, useful for accurate coverages at exon-intron boundaries,\n");
+    fprintf(stderr, "\t\t\t\t\tcreating separate tracks for forward and reverse strand, reverse strand is negated\n");
+    
     fprintf(stderr, "\n\t-S <flag>\t\tOutput strand-specific normalized tracks. One BAM file can be specified only\n");
     
     fprintf(stderr, "\n\t--binsize|-z <int>\tSize of bins for output bigWig/bedgraph generation (default: %d)\n", cmd->binSize);
@@ -615,7 +627,7 @@ CMDINPUT *ScaleParser(int argc, char **argv) {
                     cmd->no_of_samples++;
                 }
 
-                cmd->strand = 1;
+                cmd->strand = -1;
             }
         }
         
@@ -778,7 +790,7 @@ void PrintMultiCovMessage(char *pname) {
     ptr = ptr ? ptr + 1 : (char *) pname;
 
     fprintf(stderr, "\nCalculate coverage of BED coordinates in BAM file(s)\n");
-    fprintf(stderr, "Version: %s\n", "v1.0");
+    fprintf(stderr, "Version: %s\n", "v0.0.5");
     fprintf(stderr, "\nUsage: %s cov [OPTIONS] --bed <BEDFILE> --bam <BAM_1> (--bam <BAM_2> ... --bam <BAM_N>)\n", ptr);
     fprintf(stderr, "\nOutput: Coverage tables (un-normalized, library-size normalized, FPKM and TPM)\n");
     fprintf(stderr, "\nRequired options:\n");
