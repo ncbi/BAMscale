@@ -2,7 +2,7 @@ BAMscale
 ===
 
 <p align="center">
-<img src="https://github.com/ncbi/BAMscale/blob/master/doc/images/MAIN_figure.png"  width="800" height="250" />
+<img src="https://github.com/ncbi/BAMscale/blob/master/doc/images/MAIN_figure.png"  width="800" height="220" />
 </p>
 
 BAMscale is a one-step tool for either 1) quantifying and normalizing the coverage of peaks or 2) generated scaled BigWig files for easy visualization of commonly used DNA-seq capture based methods.
