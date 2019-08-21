@@ -30,7 +30,7 @@ We also added a few R scripts that might be helpful for basic visualizations:
 
 For additional information, visit the [wiki](https://github.com/ncbi/BAMscale/wiki) page.
 
-For any other requests, or if you need help either open an issue, or feel free to email me: ***pongorlorinc@gmail.com*** 
+For any other requests, or if you need help either open an issue, or feel free to email me: *pongorlorinc@gmail.com*
 
 ## Reference
 
