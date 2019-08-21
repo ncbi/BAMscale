@@ -7,6 +7,11 @@ BAMscale
 
 BAMscale is a one-step tool for either 1) quantifying and normalizing the coverage of peaks or 2) generated scaled BigWig files for easy visualization of commonly used DNA-seq capture based methods.
 
+## Update
+
+20190821: We recently added support for [RNA-seq](https://github.com/ncbi/BAMscale/wiki/Detailed-usage:-RNA-seq-coverage-tracks) data as well to create coverage tracks. The new method enables accurate representations of exon-intron boundaries (splicing). 
+
+## Manuals
 
 In the [wiki](https://github.com/ncbi/BAMscale/wiki) page we have more detailed tutorials for:
 
