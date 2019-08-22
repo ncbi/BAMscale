@@ -14,9 +14,45 @@ BAMscale is a one-step tool to
     1) quantify/normalize peak coverages from multiple BAM files 
     2) Create scaled BigWig files for easy visualization
 
+In the [wiki](https://github.com/ncbi/BAMscale/wiki) pages we have more detailed tutorials for creating bigWig files and quantifying peaks
+
 ## Update
 
 20190821: We recently added support for [RNA-seq](https://github.com/ncbi/BAMscale/wiki/Detailed-usage:-RNA-seq-coverage-tracks) data as well to create coverage tracks. The new method enables accurate representations of exon-intron boundaries (splicing). 
+
+## Usage for the impatient
+
+These examples assume you have 4 processing threads, so we set '-t 4' for multithreading.
+
+#### Peak quantification
+
+    BAMscale cov -t 4 --bed <BED_FILE> --bam <BAM1> --bam <BAM2> --bam <BAM3> ... --bam <BAMn>
+
+#### Generating scaled coverage tracks
+
+***Creating scaled coverage tracks***
+
+    BAMscale scale -t 4 --bam <BAM_FILE> [--bam <BAM2> .. --bam <BAMn>]
+
+***Creating stranded RNA-seq coverage tracks***
+
+    BAMscale scale --operation strandrna --bam <RNAseq.bam>
+    
+***Creating unstranded coverage from RNA-seq***
+
+    BAMscale scale --operation rna --bam <RNAseq.bam>
+
+***Getting RFD score from OKseq data***
+
+    BAMscale scale -t 4 --operation rfd --binsize 1000 --bam <BAM_FILE>
+    
+***Processing replication timing and Repli-seq data***
+
+    BAMscale scale -t 4 --operation reptime --bam <G1_phase.bam> --bam <S_phase.bam>
+    
+***Creating stranded END-seq coverages***
+
+    BAMscale scale -t 4 --operation endseq --bam <ENDseq.bam>
 
 ## Manuals
 
@@ -82,17 +118,6 @@ and go to the BAMscale folder to compile the program:
     make
     
 A bin folder will be created with the BAMscale executable.
-
-## Usage
-
-### Peak quantification
-
-    BAMscale cov --bed <BED_FILE> --bam <BAM1> --bam <BAM2> --bam <BAM3> ... --bam <BAMn>
-
-### Generating scaled coverage tracks
-
-    BAMscale scale --bam <BAM_FILE> [--bam <BAM2> .. --bam <BAMn>]
-
 
 ## Docker
 
