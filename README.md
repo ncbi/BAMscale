@@ -20,6 +20,28 @@ In the [wiki](https://github.com/ncbi/BAMscale/wiki) pages we have more detailed
 
 20190821: We recently added support for [RNA-seq](https://github.com/ncbi/BAMscale/wiki/Detailed-usage:-RNA-seq-coverage-tracks) data as well to create coverage tracks. The new method enables accurate representations of exon-intron boundaries (splicing). 
 
+## Manuals
+
+In the [wiki](https://github.com/ncbi/BAMscale/wiki) page we have more detailed tutorials for creating bigWig files and quantifying peaks:
+
+1. [OK-seq and RFD Track Generation](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-OKseq-RFD-(Replication-Fork-Directionality)-Track-Generation)
+2. [Quantifying Peaks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Quantifying-Peak-Coverages-from-Multiple-BAM-Files#comparing-atac-seq-changes-induced-from-treatment)
+3. [Generating Scaled Coverage Tracks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Generating-Scaled-Coverage-Tracks#preparing-input-data-for-bamscale)
+4. [END-seq data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Processing-END-seq-Data)
+5. [Log2 Coverage Tracks for Replication Timing Data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Replication-Timing-log2-Coverage-Ratio-from-Two-BAM-Files)
+6. [Smoothening Function for Coverage Tracks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Smooth-Coverage-Tracks)
+
+
+We also added a few R scripts that might be helpful for basic visualizations:
+
+1. [Segmenting replication timing bigwigs](https://github.com/ncbi/BAMscale/wiki/Replication-timing-BED-segments-from-bigwig)
+2. [Identifying OK-seq strand switches](https://github.com/ncbi/BAMscale/wiki/Finding-OK-seq-strand-switched-from-the-RFD-track)
+
+For additional information, visit the [wiki](https://github.com/ncbi/BAMscale/wiki) page.
+
+For any other requests, or if you need help either open an issue, or feel free to email me: *pongorlorinc@gmail.com*
+
+
 ## Usage for the impatient
 
 These examples assume you have 4 processing threads, so we set '-t 4' for multithreading.
@@ -54,26 +76,6 @@ These examples assume you have 4 processing threads, so we set '-t 4' for multit
 
     BAMscale scale -t 4 --operation endseq --bam <ENDseq.bam>
 
-## Manuals
-
-In the [wiki](https://github.com/ncbi/BAMscale/wiki) page we have more detailed tutorials for creating bigWig files and quantifying peaks:
-
-1. [OK-seq and RFD Track Generation](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-OKseq-RFD-(Replication-Fork-Directionality)-Track-Generation)
-2. [Quantifying Peaks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Quantifying-Peak-Coverages-from-Multiple-BAM-Files#comparing-atac-seq-changes-induced-from-treatment)
-3. [Generating Scaled Coverage Tracks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Generating-Scaled-Coverage-Tracks#preparing-input-data-for-bamscale)
-4. [END-seq data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Processing-END-seq-Data)
-5. [Log2 Coverage Tracks for Replication Timing Data](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Replication-Timing-log2-Coverage-Ratio-from-Two-BAM-Files)
-6. [Smoothening Function for Coverage Tracks](https://github.com/ncbi/BAMscale/wiki/Detailed-Use:-Smooth-Coverage-Tracks)
-
-
-We also added a few R scripts that might be helpful for basic visualizations:
-
-1. [Segmenting replication timing bigwigs](https://github.com/ncbi/BAMscale/wiki/Replication-timing-BED-segments-from-bigwig)
-2. [Identifying OK-seq strand switches](https://github.com/ncbi/BAMscale/wiki/Finding-OK-seq-strand-switched-from-the-RFD-track)
-
-For additional information, visit the [wiki](https://github.com/ncbi/BAMscale/wiki) page.
-
-For any other requests, or if you need help either open an issue, or feel free to email me: *pongorlorinc@gmail.com*
 
 ## Reference
 
