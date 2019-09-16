@@ -81,15 +81,46 @@ These examples assume you have 4 processing threads, so we set '-t 4' for multit
 
 BAMscale can be found at **bioR&chi;iv** ([https://doi.org/10.1101/669275](https://www.biorxiv.org/content/10.1101/669275v1))
 
+## Bioconda instalation
 
-## Requirements
+[BAMscale](https://bioconda.github.io/recipes/bamscale/README.html) is available through [Bioconda](https://bioconda.github.io/). Read the Bioconda [Getting Started](https://bioconda.github.io/user/install.html#install-conda) page for a detailed description on how to get Bioconda installed.
+
+Once Bioconda is available you can install BAMscale using this command.
+
+    conda install bamscale
+
+## Docker
+
+BAMscale docker image is available in [quay.io/biocontainers/bamscale](https://quay.io/repository/biocontainers/bamscale).
+
+### Pulling the image
+
+    docker pull quay.io/biocontainers/bamscale:0.0.3--ha85820d_0
+    
+### Using the Docker image
+
+#### Peak quantification with Docker
+
+    docker run -v `pwd`:/data bamscale BAMscale cov --bed <BED_FILE> --bam <BAM1> --bam <BAM2> --bam <BAM3> ... --bam <BAMn>
+
+#### Generating scaled coverage tracks with Docker
+
+    docker run -v `pwd`:/data bamscale BAMscale scale --bam <BAM_FILE> [--bam <BAM2> .. --bam <BAMn>]
+
+### Creating a custom docker image
+
+    docker build -t bamscale https://raw.githubusercontent.com/pongorlorinc/BAMscale/master/Dockerfile
+
+## Local compilation
+
+### Requirements
 
 We have a detailed installation for [Linux](https://github.com/ncbi/BAMscale/wiki/Installation#detailed-installation-for-linux-based-os) and [MAC](https://github.com/ncbi/BAMscale/wiki/Installation#detailed-installation-for-mac-os-with-homebrew) (with homebrew) based systems or through [conda](https://github.com/ncbi/BAMscale/wiki/Installation#detailed-installation-for-mac-os-with-conda). There is also a precompiled version for linux ready for usage available at the [releases](https://github.com/ncbi/BAMscale/releases).
 
-### samtools
+#### samtools
 http://www.htslib.org/
 
-### libBigWig
+#### libBigWig
 Clone the libBigWig repository from GitHub: https://github.com/dpryan79/libBigWig
 
     git clone https://github.com/dpryan79/libBigWig.git
@@ -108,7 +139,7 @@ Optionally (and if you have permission), the libbigwig can also be installed
     
 In this case, the flags don't have to be set in the terminal.
 
-## Installation
+### Installation
 
 After compiling the libBigWig library and samtools (if not already installed) clone the BAMscale from GitHub
 
@@ -120,20 +151,6 @@ and go to the BAMscale folder to compile the program:
     make
     
 A bin folder will be created with the BAMscale executable.
-
-## Docker
-
-### Build docker image
-
-    docker build -t bamscale https://raw.githubusercontent.com/pongorlorinc/BAMscale/master/Dockerfile
-
-### Peak quantification with Docker
-
-    docker run -v `pwd`:/data bamscale BAMscale cov --bed <BED_FILE> --bam <BAM1> --bam <BAM2> --bam <BAM3> ... --bam <BAMn>
-
-### Generating scaled coverage tracks with Docker
-
-    docker run -v `pwd`:/data bamscale BAMscale scale --bam <BAM_FILE> [--bam <BAM2> .. --bam <BAMn>]
 
 # Public Domain notice
 
