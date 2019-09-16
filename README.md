@@ -95,7 +95,7 @@ BAMscale docker image is available in [quay.io/biocontainers/bamscale](https://q
 
 ### Pulling the image
 
-    docker pull quay.io/biocontainers/bamscale:0.0.3--ha85820d_0
+    docker pull quay.io/biocontainers/bamscale:0.0.5--ha85820d_0
     
 ### Using the Docker image
 
