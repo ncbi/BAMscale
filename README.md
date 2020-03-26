@@ -17,6 +17,7 @@ BAMscale is a one-step tool to
 In the [wiki](https://github.com/ncbi/BAMscale/wiki) pages we have more detailed tutorials for creating bigWig files and quantifying peaks
 
 ## Update
+20200326: We added the visualization script app written in R. The scripts are available in the "R" sub-folder, with a detailed [manual](https://github.com/ncbi/BAMscale/wiki/Pairwise-comparison-of-peaks-%5Binteractive-plotting-using-R%5D) available in the wiki->visualization section
 
 20190821: We recently added support for [RNA-seq](https://github.com/ncbi/BAMscale/wiki/Detailed-usage:-RNA-seq-coverage-tracks) data as well to create coverage tracks. The new method enables accurate representations of exon-intron boundaries (splicing). 
 
@@ -33,9 +34,10 @@ In the [wiki](https://github.com/ncbi/BAMscale/wiki) page we have more detailed 
 
 
 We also added a few R scripts that might be helpful for basic visualizations:
+1. [Creating density plots of quantified peaks](https://github.com/ncbi/BAMscale/wiki/Pairwise-comparison-of-peaks-%5Binteractive-plotting-using-R%5D)
 
-1. [Segmenting replication timing bigwigs](https://github.com/ncbi/BAMscale/wiki/Replication-timing-BED-segments-from-bigwig)
-2. [Identifying OK-seq strand switches](https://github.com/ncbi/BAMscale/wiki/Finding-OK-seq-strand-switched-from-the-RFD-track)
+2. [Segmenting replication timing bigwigs](https://github.com/ncbi/BAMscale/wiki/Replication-timing-BED-segments-from-bigwig)
+3. [Identifying OK-seq strand switches](https://github.com/ncbi/BAMscale/wiki/Finding-OK-seq-strand-switched-from-the-RFD-track)
 
 For additional information, visit the [wiki](https://github.com/ncbi/BAMscale/wiki) page.
 
