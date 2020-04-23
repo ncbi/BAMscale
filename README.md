@@ -17,7 +17,7 @@ BAMscale is a one-step tool to
 In the [wiki](https://github.com/ncbi/BAMscale/wiki) pages we have more detailed tutorials for creating bigWig files and quantifying peaks
 
 ## Update
-20200423: The full manuscript has been publishes in [Epigenetics & Chromatin](https://epigeneticsandchromatin.biomedcentral.com/articles/10.1186/s13072-020-00343-x)
+20200423: The full manuscript has been published in [Epigenetics & Chromatin](https://epigeneticsandchromatin.biomedcentral.com/articles/10.1186/s13072-020-00343-x)
 
 
 20200326: We added the visualization script app written in R. The scripts are available in the "R" sub-folder, with a detailed [manual](https://github.com/ncbi/BAMscale/wiki/Pairwise-comparison-of-peaks-%5Binteractive-plotting-using-R%5D) available in the wiki->visualization section
