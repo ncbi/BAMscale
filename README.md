@@ -17,6 +17,9 @@ BAMscale is a one-step tool to
 In the [wiki](https://github.com/ncbi/BAMscale/wiki) pages we have more detailed tutorials for creating bigWig files and quantifying peaks
 
 ## Update
+20200423: The full manuscript has been publishes in [Epigenetics & Chromatin](https://epigeneticsandchromatin.biomedcentral.com/articles/10.1186/s13072-020-00343-x)
+
+
 20200326: We added the visualization script app written in R. The scripts are available in the "R" sub-folder, with a detailed [manual](https://github.com/ncbi/BAMscale/wiki/Pairwise-comparison-of-peaks-%5Binteractive-plotting-using-R%5D) available in the wiki->visualization section
 
 20190821: We recently added support for [RNA-seq](https://github.com/ncbi/BAMscale/wiki/Detailed-usage:-RNA-seq-coverage-tracks) data as well to create coverage tracks. The new method enables accurate representations of exon-intron boundaries (splicing). 
