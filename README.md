@@ -17,6 +17,8 @@ BAMscale is a one-step tool to
 In the [wiki](https://github.com/ncbi/BAMscale/wiki) pages we have more detailed tutorials for creating bigWig files and quantifying peaks
 
 ## Update
+20200918: We are working on a heatmap plotting script in R to help visualization. The script (under development) is available in "R/Plot_heatmap" folder. Please use Rstudio or something similar, as you have to set the paths in the script. Meanwhile, we will work on developing a simple GUI for this.
+
 20200423: The full manuscript has been published in [Epigenetics & Chromatin](https://epigeneticsandchromatin.biomedcentral.com/articles/10.1186/s13072-020-00343-x)
 
 
