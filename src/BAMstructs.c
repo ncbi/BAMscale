@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <htslib/sam.h>
+#include <htslib/hts.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -28,12 +29,20 @@ int CheckIndexFile(char *fname) {
     if(fname == NULL)
         return 0;
     
-    char *idx = (char *)calloc(strlen(fname) + 5, sizeof(char));
-    strcpy(idx, fname);
-    strcat(idx, ".bai");
-    
-    if(access( idx, F_OK ) == -1)
+    // Try to open the alignment file
+    htsFile *fp = hts_open(fname, "r");
+    if (fp == NULL) {
         return 0;
+    }
+    
+    // Try to open the index
+    hts_idx_t *index = sam_index_load(fp, fname);
+    hts_close(fp);
+
+    if (index == NULL) {
+        return 0;
+    }
+    hts_idx_destroy(index);
     
     return 1;
 }
