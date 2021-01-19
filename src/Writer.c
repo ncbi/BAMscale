@@ -146,8 +146,29 @@ void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
         if (chr->blacklist == 0 && chr->length > cmd->binSize) {
             if (chr->length > 10000000)
                 printf("Writing: %s\n", chr->name);
+            
+            if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_ENDR) == 0) {
+                for(i = 0; i <= chr->numberOfBins - 1; i++) {
+                    if(intervals[i] > 0)
+                        intervals[i] = -intervals[i]; 
+                }
+            }
+            
+            for(int i = 0; i < chr->numberOfBins - 1; i++) {
+                if(chr->coverages[curr->id][i] != 0) {
+                    bwAddIntervalSpanSteps(fp, chr->name, (uint32_t)(i * cmd->binSize), cmd->binSize,cmd->binSize, &chr->coverages[curr->id][i], (uint32_t) 1);
+                } 
+            }
+            
+            if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_ENDR) == 0) {
+                for(i = 0; i <= chr->numberOfBins - 1; i++) {
+                    if(intervals[i] < 0) {
+                        intervals[i] = -intervals[i];
+                    }
+                }
+            }
 
-            bwAddIntervalSpanSteps(fp, chr->name, start, cmd->binSize, cmd->binSize, &chr->coverages[curr->id][0], (uint32_t) 1);
+            /*bwAddIntervalSpanSteps(fp, chr->name, start, cmd->binSize, cmd->binSize, &chr->coverages[curr->id][0], (uint32_t) 1);
             intervals = chr->coverages[curr->id] + 1;
 
             if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_ENDR) == 0) {
@@ -158,16 +179,7 @@ void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
                 }
             }
             
-            bwAppendIntervalSpanSteps(fp, intervals, (uint32_t) chr->numberOfBins - 1);
-            
-            if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_ENDR) == 0) {
-                for(i = 0; i <= chr->numberOfBins - 1; i++) {
-                    if(intervals[i] < 0) {
-                        intervals[i] = -intervals[i];
-                    }
-                }
-                
-            }
+            bwAppendIntervalSpanSteps(fp, intervals, (uint32_t) chr->numberOfBins - 1);*/
         }
 
         chr = chr->next;
