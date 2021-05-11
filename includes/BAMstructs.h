@@ -18,6 +18,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    int CheckIndexShortFile(char *fname);
     int CheckIndexFile(char *fname);
     void DestroyBAMstruct(BAMFILES *head);
     BAMFILES *AddBAMstruct(char *BAMname, BAMFILES *head);

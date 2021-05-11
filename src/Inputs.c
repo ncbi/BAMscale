@@ -48,7 +48,7 @@ CMDINPUT *CreateCMDinput(void) {
     ptr->max_insert_size = 2000;
     ptr->min_insert_size = 0;
     ptr->fragment_size_filter = 0;
-    ptr->binSize = 5;
+    ptr->binSize = 20;
     ptr->binSizeChange = 0;
     ptr->smoothBin = 0;
     ptr->smoothBinChange = 0;
@@ -134,7 +134,7 @@ void PrintScaleMessage(char *pname) {
     ptr = ptr ? ptr + 1 : (char *) pname;
 
     fprintf(stderr, "\nScale one or multiple BAM files\n");
-    fprintf(stderr, "Version: %s\n", "v0.0.5");
+    fprintf(stderr, "Version: %s\n", "v0.0.6");
     fprintf(stderr, "\nUsage: %s scale [OPTIONS] --bam <BAM_1> (--bam <BAM_2> ... --bam <BAM_N>)\n", ptr);
     fprintf(stderr, "\nOutput: Coverage tracks in BigWig format (un-scaled, scaled, genome scaled)\n");
     fprintf(stderr, "\nRequired options:\n");
@@ -790,7 +790,7 @@ void PrintMultiCovMessage(char *pname) {
     ptr = ptr ? ptr + 1 : (char *) pname;
 
     fprintf(stderr, "\nCalculate coverage of BED coordinates in BAM file(s)\n");
-    fprintf(stderr, "Version: %s\n", "v0.0.5");
+    fprintf(stderr, "Version: %s\n", "v0.0.6");
     fprintf(stderr, "\nUsage: %s cov [OPTIONS] --bed <BEDFILE> --bam <BAM_1> (--bam <BAM_2> ... --bam <BAM_N>)\n", ptr);
     fprintf(stderr, "\nOutput: Coverage tables (un-normalized, library-size normalized, FPKM and TPM)\n");
     fprintf(stderr, "\nRequired options:\n");

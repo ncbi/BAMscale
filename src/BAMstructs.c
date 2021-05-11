@@ -24,6 +24,30 @@
 #include "Definitions.h"
 #include "BAMstructs.h"
 
+int CheckIndexShortFile(char *fname) {
+    if(fname == NULL)
+        return 0;
+    
+    char *idx = (char *)calloc(strlen(fname) + 1, sizeof(char));
+    strcpy(idx, fname);
+    idx[strlen(idx)-1] = 'i';
+    
+    printf("%s\n", idx);
+    
+    if(access( idx, F_OK ) == -1) {
+        if(idx)
+            free(idx);
+        
+        return 0;
+        
+    }
+    
+    if(idx)
+        free(idx);
+    
+    return 1;
+}
+
 int CheckIndexFile(char *fname) {
     if(fname == NULL)
         return 0;
@@ -32,8 +56,14 @@ int CheckIndexFile(char *fname) {
     strcpy(idx, fname);
     strcat(idx, ".bai");
     
-    if(access( idx, F_OK ) == -1)
-        return 0;
+    if(access( idx, F_OK ) == -1) {
+        if(idx)
+            free(idx);
+        return CheckIndexShortFile(fname);
+    }
+    
+    if(idx)
+        free(idx);
     
     return 1;
 }

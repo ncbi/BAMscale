@@ -78,10 +78,12 @@ void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
     char *outfile = NULL;
     int fnamelen = 0;
     bigWigFile_t *fp = NULL;
-    int i = 0;
+    int i, j = 0;
     CHROMOSOMES *chr = cmd->chr;
     float *intervals = NULL;
-
+    int blocksize = 25;
+    int end, currblocksize, non_empty = 0;
+    
     chrnames = GetChromosomeNames(cmd->chr, no_of_chrs);
     chrlens = GetChrLens(cmd->chr, no_of_chrs);
 
@@ -143,22 +145,49 @@ void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
     bwWriteHdr(fp);
 
     while (chr != NULL) {       
-        if (chr->blacklist == 0 && chr->length > cmd->binSize) {
+        if (chr->blacklist == 0 && chr->length > cmd->binSize) { //&& strcmp(chr->name, "chr1") == 0
             if (chr->length > 10000000)
                 printf("Writing: %s\n", chr->name);
-
-            bwAddIntervalSpanSteps(fp, chr->name, start, cmd->binSize, cmd->binSize, &chr->coverages[curr->id][0], (uint32_t) 1);
-            intervals = chr->coverages[curr->id] + 1;
-
+            
+            int startwrite = 0;
+            
             if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_ENDR) == 0) {
-                
                 for(i = 0; i <= chr->numberOfBins - 1; i++) {
                     if(intervals[i] > 0)
                         intervals[i] = -intervals[i]; 
                 }
             }
             
-            bwAppendIntervalSpanSteps(fp, intervals, (uint32_t) chr->numberOfBins - 1);
+            //bwAddIntervalSpanSteps(fp, chr->name, start, (uint32_t)cmd->binSize, (uint32_t)cmd->binSize, chr->coverages[curr->id], (uint32_t)chr->numberOfBins-1);
+                        
+            for(int i = 0; i < chr->numberOfBins - 1; i = i + blocksize) {
+                start = (uint32_t)(i * cmd->binSize);
+                end = i + blocksize;
+                currblocksize = blocksize;
+                non_empty = 0;
+                
+                if(end > chr->numberOfBins - 1) {
+                    end  = chr->numberOfBins - 1;
+                    currblocksize = end - i;
+                }
+                
+                for(j = i; j < end; j++) {
+                    if(chr->coverages[curr->id][j] != 0) {
+                        non_empty = 1;
+                    }
+                }
+                
+                if(non_empty == 1) {
+                    if(startwrite == 0) {
+                        bwAddIntervalSpanSteps(fp, chr->name, start, (uint32_t)cmd->binSize, (uint32_t)cmd->binSize, chr->coverages[curr->id] + i, (uint32_t)currblocksize);
+                    } else {
+                        bwAppendIntervalSpanSteps(fp, chr->coverages[curr->id] + i, (uint32_t)currblocksize);
+                    }
+                    startwrite++;
+                } else {
+                    startwrite = 0;
+                }
+            }
             
             if(cmd->strand == -1 && strcmp(cmd->operation, INPUTS_ENDR) == 0) {
                 for(i = 0; i <= chr->numberOfBins - 1; i++) {
@@ -166,7 +195,6 @@ void PrintScaledBigWig(CMDINPUT *cmd, BAMFILES *curr, char *sfile) {
                         intervals[i] = -intervals[i];
                     }
                 }
-                
             }
         }
 
