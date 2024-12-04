@@ -1,11 +1,11 @@
 # Base Image
-FROM continuumio/anaconda3
+FROM continuumio/miniconda3
 
 # Metadata
-LABEL base.image="continuumio/anaconda3"
+LABEL base.image="continuumio/miniconda3"
 LABEL version="1"
 LABEL software="BAMscale"
-LABEL software.version="0.0.1"
+LABEL software.version="0.0.7"
 LABEL description="BAMscale is a one-step tool for either 1) quantifying and normalizing the coverage of peaks or 2) generated scaled BigWig files for easy visualization of commonly used DNA-seq capture based methods."
 LABEL tags="BAM"
 LABEL website="https://github.com/ncbi/BAMscale"
@@ -22,10 +22,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Updating Anaconda packages
-RUN /opt/conda/bin/conda update conda
-RUN /opt/conda/bin/conda update anaconda
-RUN /opt/conda/bin/conda update --all
-RUN /opt/conda/bin/conda install -c bioconda htslib libbigwig
+RUN conda update conda
+RUN conda update --all
+RUN conda config --add channels defaults
+RUN conda config --add channels bioconda
+RUN conda config --add channels conda-forge
+RUN conda install htslib libbigwig
 
 # Add user ubuntu with no password, add to sudo group
 RUN adduser --disabled-password --gecos '' ubuntu
