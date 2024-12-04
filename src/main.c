@@ -401,7 +401,7 @@ void PrintUsage(char *pname) {
     ptr = ptr ? ptr + 1 : (char *) pname;
 
     fprintf(stderr, "\nBAMscale: a tool to quantify peaks, and scale sequencing data\n");
-    fprintf(stderr, "Version: %s\n", "v0.0.7");
+    fprintf(stderr, "Version: %s\n", "v0.0.9");
 
     fprintf(stderr, "\nUsage: %s <command>\n", ptr);
     fprintf(stderr, "\n\tCommands\tDescription\n");
